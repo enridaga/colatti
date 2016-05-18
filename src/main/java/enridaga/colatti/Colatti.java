@@ -479,7 +479,7 @@ public class Colatti {
 					Set<Concept> existsIn = collected.get(intersection.size());
 					if (existsIn != null) {
 						for (Concept c : existsIn) {
-							if (c.attributes().containsAll(existsIn)) {
+							if (c.attributes().containsAll(intersection)) {
 								L.trace("Visiting is not a generator");
 								isGenerator = false;
 								break;
@@ -536,7 +536,7 @@ public class Colatti {
 												lattice.removeParent(ha, visiting);
 											}
 											// Add new parent relation
-											lattice.addParents(ha, newConcept);
+											lattice.addParents(newConcept, ha);
 										}
 									}
 								}
