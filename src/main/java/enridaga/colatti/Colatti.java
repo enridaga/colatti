@@ -20,36 +20,6 @@ import org.slf4j.LoggerFactory;
 public class Colatti {
 	private static final Logger L = LoggerFactory.getLogger(Colatti.class);
 
-//	/**
-//	 * This allows to iterate over the ordered set of concepts.
-//	 * Adding concept of unvisited attribute size during iteration is
-//	 * safe (such concept will be found).
-//	 * 
-//	 */
-//	static final class AttributeSetSizeIterator implements Iterator<Set<Concept>> {
-//
-//		private Lattice lattice;
-//		private int size = 0;
-//		
-//		public AttributeSetSizeIterator(Lattice lattice) {
-//			this.lattice = lattice;
-//		}
-//		
-//		private int max(){
-//			return lattice.infimum().attributes().size();
-//		}
-//		
-//		public boolean hasNext() {
-//			// TODO Auto-generated method stub
-//			return false;
-//		}
-//
-//		public Set<Concept> next() {
-//			// TODO Auto-generated method stub
-//			return null;
-//		}
-//		
-//	}
 	static final class ByAttributeSetSize implements Iterator<Set<Concept>> {
 
 		private Iterator<Concept> iterator;
@@ -286,12 +256,6 @@ public class Colatti {
 			_children.remove(that);
 			_children.put(with, ccc);
 		}
-
-		public ByAttributeSetSize topDownIterator() {
-			// We clone the concept set so we can modify the lattice while we
-			// iterate over the old version
-			return new ByAttributeSetSize(new ArrayList<Concept>(_concepts).iterator());
-		}
 	}
 
 	static class Concept {
@@ -463,7 +427,11 @@ public class Colatti {
 
 		// 2. Get the Concepts grouped by attribute set cardinality (ordered
 		// ascending)
-		ByAttributeSetSize iterator = lattice.topDownIterator();
+
+			// We clone the concept set so we can modify the lattice while we
+			// iterate over the old version
+		ByAttributeSetSize iterator = new ByAttributeSetSize(new ArrayList<Concept>(lattice.concepts()).iterator());
+
 		Map<Integer, Set<Concept>> collected = new HashMap<Integer, Set<Concept>>();
 		L.trace("Iterating over all concepts from the top down");
 		while (iterator.hasNext()) {
