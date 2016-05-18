@@ -1,6 +1,5 @@
 package enridaga.colatti;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -19,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 public class Colatti {
 	private static final Logger L = LoggerFactory.getLogger(Colatti.class);
-
+//
 	static final class ByAttributeSetSize implements Iterator<Set<Concept>> {
 
 		private Iterator<Concept> iterator;
@@ -75,13 +74,12 @@ public class Colatti {
 			currentSet = set;
 			return set;
 		}
-
 	}
 
 	static final class AttributesAscSorter implements Comparator<Concept> {
 
 		public int compare(Concept o1, Concept o2) {
-			if(o1.equals(o2)){
+			if (o1.equals(o2)) {
 				return 0;
 			}
 			if (o1.objects().size() < o2.objects().size()) {
@@ -104,6 +102,7 @@ public class Colatti {
 		private TreeSet<Concept> _concepts;
 		private Map<Concept, Set<Concept>> _parents;
 		private Map<Concept, Set<Concept>> _children;
+		private Map<Integer, Set<Concept>> attributeSizeIndex = new HashMap<Integer, Set<Concept>>();
 
 		public Lattice() {
 			_concepts = new TreeSet<Concept>(attributesAscSorter);
@@ -138,12 +137,16 @@ public class Colatti {
 
 		public boolean add(Concept concept) {
 			boolean ret = _concepts.add(concept);
-			if(!_parents.containsKey(concept)){
+			if (!_parents.containsKey(concept)) {
 				_parents.put(concept, new HashSet<Concept>());
 			}
-			if(!_children.containsKey(concept)){
+			if (!_children.containsKey(concept)) {
 				_children.put(concept, new HashSet<Concept>());
 			}
+			if (!attributeSizeIndex.containsKey(concept.attributes().size())) {
+				attributeSizeIndex.put(concept.attributes().size(), new HashSet<Concept>());
+			}
+			attributeSizeIndex.get(concept.attributes().size()).add(concept);
 			return ret;
 		}
 
@@ -255,6 +258,22 @@ public class Colatti {
 			Set<Concept> ccc = _children.get(that);
 			_children.remove(that);
 			_children.put(with, ccc);
+
+			if (attributeSizeIndex.get(that.attributes().size()) != null)
+				attributeSizeIndex.get(that.attributes().size()).remove(that);
+
+			if (!attributeSizeIndex.containsKey(with.attributes().size())) {
+				attributeSizeIndex.put(with.attributes().size(), new HashSet<Concept>());
+			}
+			attributeSizeIndex.get(with.attributes().size()).add(with);
+		}
+		
+		public int maxAttributeCardinality() {
+			return infimum().attributes().size();
+		}
+		
+		private Map<Integer,Set<Concept>> attributeSizeIndex() {
+			return Collections.unmodifiableMap(attributeSizeIndex);
 		}
 	}
 
@@ -262,7 +281,7 @@ public class Colatti {
 		private Set<Object> objects;
 		private Set<Object> attributes;
 		private int hashCode;
-		
+
 		private Concept() {
 			this(Collections.emptySet(), Collections.emptySet());
 		}
@@ -276,7 +295,7 @@ public class Colatti {
 		private Concept(Set<Object> objects, Set<Object> attributes) {
 			this.objects = objects;
 			this.attributes = attributes;
-			this.hashCode= new HashCodeBuilder().append(objects).append(attributes).toHashCode();
+			this.hashCode = new HashCodeBuilder().append(objects).append(attributes).toHashCode();
 		}
 
 		Set<Object> objects() {
@@ -297,10 +316,10 @@ public class Colatti {
 			return new StringBuilder().append(objects).append(attributes).toString();
 		}
 
-		public int hashCode(){
+		public int hashCode() {
 			return hashCode;
 		}
-		
+
 		/*
 		 * STATIC
 		 */
@@ -361,8 +380,8 @@ public class Colatti {
 	public Colatti() {
 		lattice = new Lattice();
 	}
-	
-	public Lattice lattice(){
+
+	public Lattice lattice() {
 		return lattice;
 	}
 
@@ -374,8 +393,17 @@ public class Colatti {
 	 * @return
 	 * @throws ColattiException
 	 */
-	public boolean add(Object object, Object... attributes) throws ColattiException {
-		L.trace("Called add({},{})",object, attributes);
+	public boolean addObject(Object object, Object... attributes) throws ColattiException {
+		L.trace("Called add({},{})", object, attributes);
+
+		/**
+		 * This algorithm only works if object is not yet in the lattice.
+		 */
+		if (lattice.supremum().objects().contains(object)) {
+			L.warn("Ignored. Cannot add the same object twice!");
+			return false;
+		}
+
 		boolean created = false;
 		// 1. Adjust sup(G) for new attributes
 		// If lattice is empty
@@ -404,21 +432,25 @@ public class Colatti {
 					Concept oldInfimum = lattice.infimum();
 					L.trace("old infimum: {}", oldInfimum);
 					L.trace("new infimum: {}", newInfimum);
-					if(L.isDebugEnabled()){
-						L.debug("Parents/Children of old infimum (before change): {} / {}", lattice.parents(oldInfimum), lattice.children(oldInfimum));
+					if (L.isDebugEnabled()) {
+						L.debug("Parents/Children of old infimum (before change): {} / {}", lattice.parents(oldInfimum),
+								lattice.children(oldInfimum));
 					}
 					// Link old infimum to new one
 					L.trace("Adding new infimum: {}", lattice.add(newInfimum));
 					// Add new edge to new infimum
 					lattice.addChildren(oldInfimum, newInfimum);
-					if(L.isDebugEnabled()){
-						L.debug("Parents/Children of old infimum: {} / {}", lattice.parents(oldInfimum), lattice.children(oldInfimum));
-						L.debug("Parents/Children of new infimum: {} / {}", lattice.parents(newInfimum), lattice.children(newInfimum));
+					if (L.isDebugEnabled()) {
+						L.debug("Parents/Children of old infimum: {} / {}", lattice.parents(oldInfimum),
+								lattice.children(oldInfimum));
+						L.debug("Parents/Children of new infimum: {} / {}", lattice.parents(newInfimum),
+								lattice.children(newInfimum));
 					}
 				}
-			}else{
+			} else {
+				// This is dead code, as the check is performed at the beginning
 				L.trace("Infimum contains all attributes.");
-				if(lattice.supremum().objects().contains(object)){
+				if (lattice.supremum().objects().contains(object)) {
 					L.trace("Supremum contains the object. Exiting.");
 					return false;
 				}
@@ -427,17 +459,15 @@ public class Colatti {
 
 		// 2. Get the Concepts grouped by attribute set cardinality (ordered
 		// ascending)
-
-			// We clone the concept set so we can modify the lattice while we
-			// iterate over the old version
-		ByAttributeSetSize iterator = new ByAttributeSetSize(new ArrayList<Concept>(lattice.concepts()).iterator());
-
 		Map<Integer, Set<Concept>> collected = new HashMap<Integer, Set<Concept>>();
 		L.trace("Iterating over all concepts from the top down");
-		while (iterator.hasNext()) {
-			Set<Concept> current = iterator.next();
-			L.trace("Iterating on size {} attrs concept", iterator.attributeCardinality());
-			collected.put(iterator.attributeCardinality(), new HashSet<Concept>());
+		for (int x = 0; x <= lattice.maxAttributeCardinality(); x++) {
+			// while (iterator.hasNext()) {
+			Set<Concept> current = lattice.attributeSizeIndex().get(x); // iterator.next();
+			if (current == null)
+				continue;
+			L.trace("Iterating on size {} attrs concept", x);
+			collected.put(x, new HashSet<Concept>());
 			// Treat each set in ascending cardinality order
 			// For each Concept
 			for (Concept visiting : current) {
@@ -451,7 +481,7 @@ public class Colatti {
 					Concept modified = Concept.makeAddObject(visiting, object);
 					lattice.replace(visiting, modified);
 					visiting = modified;
-					collected.get(iterator.attributeCardinality()).add(modified);
+					collected.get(x).add(modified);
 					created = true;
 				}
 
@@ -496,7 +526,7 @@ public class Colatti {
 						lattice.add(newConcept);
 						created = true;
 
-						if(!collected.containsKey(newConcept.attributes().size())){
+						if (!collected.containsKey(newConcept.attributes().size())) {
 							collected.put(newConcept.attributes().size(), new HashSet<Concept>());
 						}
 						collected.get(newConcept.attributes().size()).add(newConcept);
@@ -542,11 +572,11 @@ public class Colatti {
 								}
 							}
 						}
-						
-						
-						// If the intersection is actually the same as the set of attributes of the input object
+
+						// If the intersection is actually the same as the set
+						// of attributes of the input object
 						// then exit the algorithm
-						if(intersection.containsAll(Arrays.asList(attributes))){
+						if (intersection.containsAll(Arrays.asList(attributes))) {
 							L.trace("Intersection {} contains all {}", intersection, attributes);
 							L.trace("Exit.");
 							return created;
