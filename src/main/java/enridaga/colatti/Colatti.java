@@ -2,6 +2,7 @@ package enridaga.colatti;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -12,7 +13,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Colatti {
+	private static final Logger L = LoggerFactory.getLogger(Colatti.class);
 
 	static final class ByAttributeSetSize implements Iterator<Set<Concept>> {
 
@@ -169,7 +174,6 @@ public class Colatti {
 		 */
 		public void setChildren(Concept concept, Concept... children) {
 			_children.put(concept, new HashSet<Concept>(Arrays.asList(children)));
-
 		}
 
 		/**
@@ -188,6 +192,35 @@ public class Colatti {
 					_parents.put(c, new HashSet<Concept>());
 				}
 				_parents.get(c).add(concept);
+			}
+		}
+
+		public boolean isParentOf(Concept concept, Concept parent) {
+			if (!_parents.containsKey(concept))
+				return false;
+			return _parents.get(concept).contains(parent);
+		}
+
+		/**
+		 * This method also adjust the inverse child relation.
+		 * 
+		 * @param concept
+		 * @param parent
+		 * @return boolean - if the change was effective
+		 */
+		public boolean removeParent(Concept concept, Concept parent) {
+			if (!_parents.containsKey(concept)) {
+				return false;
+			}
+			if (_parents.get(concept).remove(parent)) {
+				// XXX If this throws NPE then there is something wrong ...
+				if (!_children.get(parent).remove(concept)) {
+					// If this is false there is something wrong
+					L.warn("Removing a parent was successful. However no related child relation was found.");
+				}
+				return true;
+			} else {
+				return false;
 			}
 		}
 
@@ -261,6 +294,10 @@ public class Colatti {
 		/*
 		 * STATIC
 		 */
+
+		public static final Concept make(Collection<Object> objects, Collection<Object> attributes) {
+			return new Concept(objects.toArray(), attributes.toArray());
+		}
 
 		public static final Concept make(Object[] objects, Object[] attributes) {
 			return new Concept(objects, attributes);
@@ -354,16 +391,17 @@ public class Colatti {
 			}
 		}
 
-		// 2. Get the Concepts grouped by attribute set cardinality
+		// 2. Get the Concepts grouped by attribute set cardinality (ordered
+		// ascending)
 		ByAttributeSetSize iterator = lattice.topDownIterator();
-		Map<Integer,Set<Concept>> collected = new HashMap<Integer,Set<Concept>>();
+		Map<Integer, Set<Concept>> collected = new HashMap<Integer, Set<Concept>>();
+
 		while (iterator.hasNext()) {
 			Set<Concept> current = iterator.next();
 			collected.put(iterator.attributeCardinality(), new HashSet<Concept>());
 			// Treat each set in ascending cardinality order
 			// For each Concept
 			for (Concept visiting : current) {
-
 				// If the attributes of visiting is a subset of the attributes
 				// of the new object
 				if (Arrays.asList(attributes).containsAll(visiting.attributes())) {
@@ -371,6 +409,7 @@ public class Colatti {
 					// add the new object to this concept
 					Concept modified = Concept.makeAddObject(visiting, object);
 					lattice.replace(visiting, modified);
+					visiting = modified;
 					collected.get(iterator.attributeCardinality()).add(modified);
 					created = true;
 				}
@@ -380,13 +419,87 @@ public class Colatti {
 				if (visiting.attributes().containsAll(Arrays.asList(attributes))
 						&& Arrays.asList(attributes).containsAll(visiting.attributes())) {
 					return created;
-				}else{
+				} else {
 					// Old concept
-					// Try the intersection 
+					// Try a new intersection
 					Set<Object> intersection = new HashSet<Object>();
 					intersection.addAll(Arrays.asList(attributes));
 					intersection.retainAll(visiting.attributes());
-					// TODO
+
+					/*
+					 * If we already visited a Concept with the same attributes,
+					 * then visiting is a generator. (assumption: intersection
+					 * is smaller then current and we are traversing an ordered
+					 * sequence)
+					 */
+					boolean isGenerator = false;
+					Set<Concept> existsIn = collected.get(intersection.size());
+					if (existsIn != null) {
+						for (Concept c : existsIn) {
+							if (c.attributes().containsAll(existsIn)) {
+								isGenerator = true;
+								break;
+							}
+						}
+					}
+
+					if (isGenerator) {
+						Set<Object> objects = new HashSet<Object>(visiting.objects());
+						objects.add(object);
+						Concept newConcept = Concept.make(objects.toArray(), attributes);
+						created = true;
+						lattice.add(newConcept);
+						collected.get(newConcept.attributes().size()).add(newConcept);
+						// Add edge from the new concept to the generator
+						// The generator is a child of the new concept (the new
+						// concept
+						// has less or equal number of attributes).
+						lattice.addChildren(newConcept, visiting);
+
+						// Now modifying edges
+						for (int l = 0; l < intersection.size(); l++) {
+							if (collected.containsKey(l)) {
+								for (Concept ha : collected.get(l)) {
+									// If the attribute set is a strict subset
+									// of intersections
+									// then this is a potential parent of the
+									// new concept
+									if (intersection.containsAll(ha.attributes())) {
+										boolean isParent = true;
+										// Lookup the children of the potential
+										// parent
+										// If a child's attribute set is also a
+										// strict subset of intersections,
+										// then this is not a parent.
+										for (Concept c : lattice.children(ha)) {
+											if (intersection.containsAll(c.attributes())
+													&& intersection.size() > c.attributes().size()) {
+												isParent = false;
+												break;
+											}
+										}
+										if (isParent) {
+											// If the potential parent is a
+											// parent of the generator
+											// remove this edge
+											if (lattice.isParentOf(ha, visiting)) {
+												lattice.removeParent(ha, visiting);
+											}
+											// Add new parent relation
+											lattice.addParents(ha, newConcept);
+										}
+									}
+								}
+							}
+						}
+						
+						
+						// If the intersection is actually the same as the set of attributes of the input object
+						// then exit the algorithm
+						if(Arrays.asList(attributes).containsAll(intersection)){
+							return created;
+						}
+					}
 				}
 			}
 		}
