@@ -11,6 +11,8 @@ import org.junit.rules.TestName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import enridaga.colatti.shared.AttributesAscSorter;
+
 public class ConceptComparatorTest {
 
 	private final static Logger log = LoggerFactory.getLogger(ConceptComparatorTest.class);
@@ -47,7 +49,7 @@ public class ConceptComparatorTest {
 			}
 		}
 		// Sort
-		_concepts.sort(Colatti.attributesAscSorter);
+		_concepts.sort(new AttributesAscSorter());
 
 		// Test
 		Assert.assertTrue(_concepts.indexOf(_1) == 0);
