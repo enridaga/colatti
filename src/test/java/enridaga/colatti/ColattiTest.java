@@ -31,7 +31,7 @@ public class ColattiTest {
 	}
 
 	@Test
-	public void testWithTwoConcepts() throws Exception {
+	public void testWithTwoObjects() throws Exception {
 		Colatti colatti = new Colatti();
 		Assert.assertTrue(colatti.add("A", "a", "b", "c"));
 		Assert.assertTrue(colatti.add("B", "b", "c", "d"));
