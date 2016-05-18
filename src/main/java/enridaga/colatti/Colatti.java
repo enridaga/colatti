@@ -13,12 +13,43 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Colatti {
 	private static final Logger L = LoggerFactory.getLogger(Colatti.class);
 
+//	/**
+//	 * This allows to iterate over the ordered set of concepts.
+//	 * Adding concept of unvisited attribute size during iteration is
+//	 * safe (such concept will be found).
+//	 * 
+//	 */
+//	static final class AttributeSetSizeIterator implements Iterator<Set<Concept>> {
+//
+//		private Lattice lattice;
+//		private int size = 0;
+//		
+//		public AttributeSetSizeIterator(Lattice lattice) {
+//			this.lattice = lattice;
+//		}
+//		
+//		private int max(){
+//			return lattice.infimum().attributes().size();
+//		}
+//		
+//		public boolean hasNext() {
+//			// TODO Auto-generated method stub
+//			return false;
+//		}
+//
+//		public Set<Concept> next() {
+//			// TODO Auto-generated method stub
+//			return null;
+//		}
+//		
+//	}
 	static final class ByAttributeSetSize implements Iterator<Set<Concept>> {
 
 		private Iterator<Concept> iterator;
@@ -80,6 +111,9 @@ public class Colatti {
 	static final class AttributesAscSorter implements Comparator<Concept> {
 
 		public int compare(Concept o1, Concept o2) {
+			if(o1.equals(o2)){
+				return 0;
+			}
 			if (o1.objects().size() < o2.objects().size()) {
 				return 1;
 			} else if (o1.objects().size() > o2.objects().size()) {
@@ -90,7 +124,7 @@ public class Colatti {
 			} else if (o1.attributes().size() < o2.attributes().size()) {
 				return -1;
 			}
-			return 0;
+			return o1.hashCode() > o2.hashCode() ? 1 : -1;
 		}
 	}
 
@@ -134,6 +168,12 @@ public class Colatti {
 
 		public boolean add(Concept concept) {
 			boolean ret = _concepts.add(concept);
+			if(!_parents.containsKey(concept)){
+				_parents.put(concept, new HashSet<Concept>());
+			}
+			if(!_children.containsKey(concept)){
+				_children.put(concept, new HashSet<Concept>());
+			}
 			return ret;
 		}
 
@@ -257,20 +297,22 @@ public class Colatti {
 	static class Concept {
 		private Set<Object> objects;
 		private Set<Object> attributes;
-
+		private int hashCode;
+		
 		private Concept() {
 			this(Collections.emptySet(), Collections.emptySet());
 		}
 
 		public final static Concept empty = new Concept();
 
-		Concept(Object[] objects, Object[] attributes) {
+		private Concept(Object[] objects, Object[] attributes) {
 			this(new HashSet<Object>(Arrays.asList(objects)), new HashSet<Object>(Arrays.asList(attributes)));
 		}
 
-		Concept(Set<Object> objects, Set<Object> attributes) {
+		private Concept(Set<Object> objects, Set<Object> attributes) {
 			this.objects = objects;
 			this.attributes = attributes;
+			this.hashCode= new HashCodeBuilder().append(objects).append(attributes).toHashCode();
 		}
 
 		Set<Object> objects() {
@@ -291,6 +333,10 @@ public class Colatti {
 			return new StringBuilder().append(objects).append(attributes).toString();
 		}
 
+		public int hashCode(){
+			return hashCode;
+		}
+		
 		/*
 		 * STATIC
 		 */
@@ -351,6 +397,10 @@ public class Colatti {
 	public Colatti() {
 		lattice = new Lattice();
 	}
+	
+	public Lattice lattice(){
+		return lattice;
+	}
 
 	/**
 	 * Returns true if a new concept is created/modified.
@@ -361,32 +411,52 @@ public class Colatti {
 	 * @throws ColattiException
 	 */
 	public boolean add(Object object, Object... attributes) throws ColattiException {
+		L.trace("Called add({},{})",object, attributes);
 		boolean created = false;
 		// 1. Adjust sup(G) for new attributes
-		// If sup(G) is empty
+		// If lattice is empty
 		if (lattice.supremum().equals(Concept.empty)) {
+			L.trace("Supremum is empty, creating concept and replace supremum");
 			Concept c = Concept.makeFromSingleObject(object, attributes);
 			created = true;
 			// This concept becomes sup(G)
 			lattice.replace(lattice.supremum(), c);
 		} else {
 			// If there are new attributes
-			if (!lattice.supremum().attributes().containsAll(Arrays.asList(attributes))) {
-				// If the object set in the supremum is empty
-				if (lattice.supremum().objects().isEmpty()) {
-					lattice.replace(lattice.supremum(), Concept.makeAddAttributes(lattice.supremum(), attributes));
+			if (!lattice.infimum().attributes().containsAll(Arrays.asList(attributes))) {
+				L.trace("Infimum does not contain all object's attributes");
+				// If the object set in the infimum is empty
+				if (lattice.infimum().objects().isEmpty()) {
+					L.trace("Infimum's object set is empty, replacing with a new infimum with all the new attributes as well.");
+					lattice.replace(lattice.infimum(), Concept.makeAddAttributes(lattice.infimum(), attributes));
 				} else {
+					// The object set of the infimum is not empty.
 					// Create a new Concept with empty objects and all the
-					// attributes from the supremum plus the ones from this
-					// object
-					Concept newSupremum = Concept.makeJoinAttributes(Concept.empty,
-							lattice.supremum().attributes().toArray(), attributes);
+					// attributes from the infimum plus the ones from this
+					// object, and set it as a new infimum
+					Concept newInfimum = Concept.makeJoinAttributes(Concept.empty,
+							lattice.infimum().attributes().toArray(), attributes);
 					created = true;
-					Concept oldSupremum = lattice.supremum();
-					// Link old supremum to new one
-					lattice.add(newSupremum);
-					// Add new edge to new supremum
-					lattice.addParents(oldSupremum, newSupremum);
+					Concept oldInfimum = lattice.infimum();
+					L.trace("old infimum: {}", oldInfimum);
+					L.trace("new infimum: {}", newInfimum);
+					if(L.isDebugEnabled()){
+						L.debug("Parents/Children of old infimum (before change): {} / {}", lattice.parents(oldInfimum), lattice.children(oldInfimum));
+					}
+					// Link old infimum to new one
+					L.trace("Adding new infimum: {}", lattice.add(newInfimum));
+					// Add new edge to new infimum
+					lattice.addChildren(oldInfimum, newInfimum);
+					if(L.isDebugEnabled()){
+						L.debug("Parents/Children of old infimum: {} / {}", lattice.parents(oldInfimum), lattice.children(oldInfimum));
+						L.debug("Parents/Children of new infimum: {} / {}", lattice.parents(newInfimum), lattice.children(newInfimum));
+					}
+				}
+			}else{
+				L.trace("Infimum contains all attributes.");
+				if(lattice.supremum().objects().contains(object)){
+					L.trace("Supremum contains the object. Exiting.");
+					return false;
 				}
 			}
 		}
@@ -395,16 +465,19 @@ public class Colatti {
 		// ascending)
 		ByAttributeSetSize iterator = lattice.topDownIterator();
 		Map<Integer, Set<Concept>> collected = new HashMap<Integer, Set<Concept>>();
-
+		L.trace("Iterating over all concepts from the top down");
 		while (iterator.hasNext()) {
 			Set<Concept> current = iterator.next();
+			L.trace("Iterating on size {} attrs concept", iterator.attributeCardinality());
 			collected.put(iterator.attributeCardinality(), new HashSet<Concept>());
 			// Treat each set in ascending cardinality order
 			// For each Concept
 			for (Concept visiting : current) {
+				L.trace("Visiting {}", visiting);
 				// If the attributes of visiting is a subset of the attributes
 				// of the new object
 				if (Arrays.asList(attributes).containsAll(visiting.attributes())) {
+					L.trace("Attributes of visiting is a subset of {}", attributes);
 					// modified concept
 					// add the new object to this concept
 					Concept modified = Concept.makeAddObject(visiting, object);
@@ -418,6 +491,8 @@ public class Colatti {
 				// the new one, just exit.
 				if (visiting.attributes().containsAll(Arrays.asList(attributes))
 						&& Arrays.asList(attributes).containsAll(visiting.attributes())) {
+					L.trace("Attributes of visiting are the same as {}", attributes);
+					L.trace("Exit.");
 					return created;
 				} else {
 					// Old concept
@@ -425,37 +500,44 @@ public class Colatti {
 					Set<Object> intersection = new HashSet<Object>();
 					intersection.addAll(Arrays.asList(attributes));
 					intersection.retainAll(visiting.attributes());
-
+					L.trace("Trying intersection {}", intersection);
 					/*
 					 * If we already visited a Concept with the same attributes,
 					 * then visiting is a generator. (assumption: intersection
 					 * is smaller then current and we are traversing an ordered
 					 * sequence)
 					 */
-					boolean isGenerator = false;
+					boolean isGenerator = true;
 					Set<Concept> existsIn = collected.get(intersection.size());
 					if (existsIn != null) {
 						for (Concept c : existsIn) {
 							if (c.attributes().containsAll(existsIn)) {
-								isGenerator = true;
+								L.trace("Visiting is not a generator");
+								isGenerator = false;
 								break;
 							}
 						}
 					}
 
 					if (isGenerator) {
+						L.trace("Visiting is a generator");
 						Set<Object> objects = new HashSet<Object>(visiting.objects());
 						objects.add(object);
-						Concept newConcept = Concept.make(objects.toArray(), attributes);
-						created = true;
+						Concept newConcept = Concept.make(objects.toArray(), intersection.toArray());
+						L.trace("Generating new concept: {}", newConcept);
 						lattice.add(newConcept);
+						created = true;
+
+						if(!collected.containsKey(newConcept.attributes().size())){
+							collected.put(newConcept.attributes().size(), new HashSet<Concept>());
+						}
 						collected.get(newConcept.attributes().size()).add(newConcept);
 						// Add edge from the new concept to the generator
 						// The generator is a child of the new concept (the new
 						// concept
 						// has less or equal number of attributes).
 						lattice.addChildren(newConcept, visiting);
-
+						L.trace("New concept is a parent of the generator: {}", newConcept, visiting);
 						// Now modifying edges
 						for (int l = 0; l < intersection.size(); l++) {
 							if (collected.containsKey(l)) {
@@ -496,7 +578,9 @@ public class Colatti {
 						
 						// If the intersection is actually the same as the set of attributes of the input object
 						// then exit the algorithm
-						if(Arrays.asList(attributes).containsAll(intersection)){
+						if(intersection.containsAll(Arrays.asList(attributes))){
+							L.trace("Intersection {} contains all {}", intersection, attributes);
+							L.trace("Exit.");
 							return created;
 						}
 					}
