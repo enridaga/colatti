@@ -11,8 +11,6 @@ import org.junit.rules.TestName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import enridaga.colatti.Colatti.Concept;
-
 public class ConceptComparatorTest {
 
 	private final static Logger log = LoggerFactory.getLogger(ConceptComparatorTest.class);

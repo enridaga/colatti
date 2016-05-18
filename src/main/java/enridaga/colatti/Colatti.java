@@ -1,101 +1,22 @@
 package enridaga.colatti;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import enridaga.colatti.shared.AttributesAscSorter;
+
 public class Colatti {
 	private static final Logger L = LoggerFactory.getLogger(Colatti.class);
-//
-	static final class ByAttributeSetSize implements Iterator<Set<Concept>> {
-
-		private Iterator<Concept> iterator;
-		private int currentCardinality = -1;
-		private Set<Concept> currentSet = null;
-		private Concept waiting = null;
-
-		public ByAttributeSetSize(Iterator<Concept> sortedByCardinality) {
-			iterator = sortedByCardinality;
-		}
-
-		public int attributeCardinality() {
-			return currentCardinality;
-		}
-
-		public Set<Concept> currentSet() {
-			return currentSet;
-		}
-
-		public boolean hasNext() {
-			return waiting != null || iterator.hasNext();
-		}
-
-		public Set<Concept> next() {
-			currentSet = null;
-			// Set the current item
-			Set<Concept> set = new HashSet<Concept>();
-			if (waiting != null) {
-				currentCardinality = waiting.attributes().size();
-				set.add(waiting);
-				waiting = null;
-			} else {
-				// Waiting is null
-				if (iterator.hasNext()) {
-					Concept next = iterator.next();
-					currentCardinality = next.attributes().size();
-					set.add(next);
-				} else {
-					return null; // nothing!
-				}
-			}
-			// Collect others until cardinality changes or iterator finishes ...
-			while (iterator.hasNext()) {
-				Concept more = iterator.next();
-				int c = more.attributes().size();
-				if (c == currentCardinality) {
-					set.add(more);
-				} else {
-					waiting = more;
-					break;
-				}
-			}
-			currentSet = set;
-			return set;
-		}
-	}
-
-	static final class AttributesAscSorter implements Comparator<Concept> {
-
-		public int compare(Concept o1, Concept o2) {
-			if (o1.equals(o2)) {
-				return 0;
-			}
-			if (o1.objects().size() < o2.objects().size()) {
-				return 1;
-			} else if (o1.objects().size() > o2.objects().size()) {
-				return -1;
-			}
-			if (o1.attributes().size() > o2.attributes().size()) {
-				return 1;
-			} else if (o1.attributes().size() < o2.attributes().size()) {
-				return -1;
-			}
-			return o1.hashCode() > o2.hashCode() ? 1 : -1;
-		}
-	}
-
 	public static final Comparator<Concept> attributesAscSorter = new AttributesAscSorter();
 
 	class Lattice {
@@ -274,89 +195,6 @@ public class Colatti {
 		
 		private Map<Integer,Set<Concept>> attributeSizeIndex() {
 			return Collections.unmodifiableMap(attributeSizeIndex);
-		}
-	}
-
-	static class Concept {
-		private Set<Object> objects;
-		private Set<Object> attributes;
-		private int hashCode;
-
-		private Concept() {
-			this(Collections.emptySet(), Collections.emptySet());
-		}
-
-		public final static Concept empty = new Concept();
-
-		private Concept(Object[] objects, Object[] attributes) {
-			this(new HashSet<Object>(Arrays.asList(objects)), new HashSet<Object>(Arrays.asList(attributes)));
-		}
-
-		private Concept(Set<Object> objects, Set<Object> attributes) {
-			this.objects = objects;
-			this.attributes = attributes;
-			this.hashCode = new HashCodeBuilder().append(objects).append(attributes).toHashCode();
-		}
-
-		Set<Object> objects() {
-			return Collections.unmodifiableSet(objects);
-		}
-
-		Set<Object> attributes() {
-			return Collections.unmodifiableSet(attributes);
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			return (obj instanceof Concept) && ((Concept) obj).attributes().equals(attributes)
-					&& ((Concept) obj).objects().equals(objects);
-		}
-
-		public String toString() {
-			return new StringBuilder().append(objects).append(attributes).toString();
-		}
-
-		public int hashCode() {
-			return hashCode;
-		}
-
-		/*
-		 * STATIC
-		 */
-
-		public static final Concept make(Collection<Object> objects, Collection<Object> attributes) {
-			return new Concept(objects.toArray(), attributes.toArray());
-		}
-
-		public static final Concept make(Object[] objects, Object[] attributes) {
-			return new Concept(objects, attributes);
-		}
-
-		public static final Concept makeFromSingleObject(Object object, Object... attributes) {
-			return new Concept(new Object[] { object }, attributes);
-		}
-
-		public static final Concept makeAddAttributes(Concept concept, Object... attributesToAdd) {
-			Set<Object> attributes = new HashSet<Object>();
-			attributes.addAll(concept.attributes());
-			attributes.addAll(Arrays.asList(attributesToAdd));
-			return new Concept(concept.objects(), attributes);
-		}
-
-		public static final Concept makeAddObject(Concept concept, Object object) {
-			Set<Object> objects = new HashSet<Object>();
-			objects.addAll(concept.objects());
-			objects.add(object);
-			return new Concept(objects, concept.attributes());
-		}
-
-		public static final Concept makeJoinAttributes(Concept concept, Object[]... attributeSetsToJoin) {
-			Set<Object> attributes = new HashSet<Object>();
-			attributes.addAll(concept.attributes());
-			for (Object[] attributesToAdd : attributeSetsToJoin) {
-				attributes.addAll(Arrays.asList(attributesToAdd));
-			}
-			return new Concept(concept.objects(), attributes);
 		}
 	}
 

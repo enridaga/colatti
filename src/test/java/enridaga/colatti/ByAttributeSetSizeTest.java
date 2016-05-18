@@ -1,7 +1,7 @@
 package enridaga.colatti;
 
+import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -10,8 +10,7 @@ import org.junit.rules.TestName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import enridaga.colatti.Colatti.ByAttributeSetSize;
-import enridaga.colatti.Colatti.Concept;
+import enridaga.colatti.shared.ByAttributeSetSize;
 
 public class ByAttributeSetSizeTest {
 	private final static Logger log = LoggerFactory.getLogger(ByAttributeSetSizeTest.class);
@@ -26,7 +25,7 @@ public class ByAttributeSetSizeTest {
 
 	@Test
 	public void test() {
-		Set<Concept> _concepts = new TreeSet<Concept>(Colatti.attributesAscSorter);
+		Set<Concept> _concepts = new HashSet<Concept>();
 		Concept _5 = Concept.make(new String[] {}, new String[] { "a", "b", "c", "d" });
 		Concept _4 = Concept.make(new String[] { "A" }, new String[] { "a", "b", "c" });
 		Concept _3 = Concept.make(new String[] { "C" }, new String[] { "a", "c" });
@@ -40,7 +39,7 @@ public class ByAttributeSetSizeTest {
 		_concepts.add(_3);
 		_concepts.add(_1);
 
-		ByAttributeSetSize it = new ByAttributeSetSize(_concepts.iterator());
+		ByAttributeSetSize it = new ByAttributeSetSize(_concepts);
 		while (it.hasNext()) {
 			log.debug("{} {}", it.next(), it.attributeCardinality());
 		}
