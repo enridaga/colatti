@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -19,9 +20,13 @@ public class ConceptComparatorTest {
 	@Rule
 	public TestName name = new TestName();
 
+	@Before
+	public void before() {
+		log.info("{}", name.getMethodName());
+	}
+
 	@Test
 	public void sort() throws Exception {
-		log.debug("{}", name.getMethodName());
 		List<Concept> _concepts;
 		_concepts = new ArrayList<Concept>();
 		Concept _5 = Concept.make(new String[] {}, new String[] { "a", "b", "c", "d" });

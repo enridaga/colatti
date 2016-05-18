@@ -1,6 +1,7 @@
 package enridaga.colatti;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -15,9 +16,13 @@ public class ColattiTest {
 	@Rule
 	public TestName name = new TestName();
 
+	@Before
+	public void before() {
+		log.info("{}", name.getMethodName());
+	}
+
 	@Test
 	public void addReturnBooleanCorrectly() throws Exception {
-		log.debug("{}", name.getMethodName());
 		Colatti colatti = new Colatti();
 		boolean ret = colatti.add("A", "a", "b", "c");
 		Assert.assertTrue(ret);
@@ -27,7 +32,6 @@ public class ColattiTest {
 
 	@Test
 	public void testWithTwoConcepts() throws Exception {
-		log.debug("{}", name.getMethodName());
 		Colatti colatti = new Colatti();
 		Assert.assertTrue(colatti.add("A", "a", "b", "c"));
 		Assert.assertTrue(colatti.add("B", "b", "c", "d"));

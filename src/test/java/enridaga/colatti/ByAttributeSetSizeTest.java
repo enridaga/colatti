@@ -3,6 +3,7 @@ package enridaga.colatti;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -17,6 +18,11 @@ public class ByAttributeSetSizeTest {
 
 	@Rule
 	public TestName name = new TestName();
+
+	@Before
+	public void before() {
+		log.info("{}", name.getMethodName());
+	}
 
 	@Test
 	public void test() {
