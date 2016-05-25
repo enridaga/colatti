@@ -15,7 +15,7 @@ public class Colatti {
 	private Lattice lattice;
 
 	public Colatti() {
-		lattice = new Lattice();
+		lattice = new LatticeInMemory();
 	}
 
 	public Lattice lattice() {
