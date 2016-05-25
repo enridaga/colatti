@@ -14,6 +14,12 @@ import org.slf4j.LoggerFactory;
 
 import enridaga.colatti.shared.AttributesAscSorter;
 
+/**
+ * In memory implementation of the Lattice interface.
+ * 
+ * @author enridaga
+ *
+ */
 public class LatticeInMemory implements Lattice {
 	private final Logger log = LoggerFactory.getLogger(LatticeInMemory.class);
 	private TreeSet<Concept> _concepts;

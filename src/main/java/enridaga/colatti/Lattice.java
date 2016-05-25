@@ -4,6 +4,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * 
+ * @author enridaga
+ *
+ */
 public interface Lattice {
 
 	List<Concept> concepts();

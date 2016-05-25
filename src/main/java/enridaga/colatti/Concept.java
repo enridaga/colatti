@@ -8,6 +8,13 @@ import java.util.Set;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+/**
+ * Concept base class.
+ * This is a fully in-memory implementation, implementing equals() and hashCode().
+ * 
+ * @author enridaga
+ *
+ */
 public class Concept {
 	private Set<Object> objects;
 	private Set<Object> attributes;

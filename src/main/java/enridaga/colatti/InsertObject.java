@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
  * This class implements the Godin algorithm for incremental Lattice construction.
  * The new Object must not already exist.
  * 
- * @author ed4565
+ * @author enridaga
  *
  */
 public class InsertObject {
