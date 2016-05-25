@@ -26,18 +26,20 @@ public class ColattiTest {
 
 	@Test
 	public void addReturnBooleanCorrectly() throws Exception {
-		Colatti colatti = new Colatti();
-		boolean ret = colatti.addObject("A", "a", "b", "c");
+		Lattice lattice = new LatticeInMemory();
+		InsertObject colatti = new InsertObject(lattice);
+		boolean ret = colatti.perform("A", "a", "b", "c");
 		Assert.assertTrue(ret);
-		ret = colatti.addObject("A", "a", "b", "c");
+		ret = colatti.perform("A", "a", "b", "c");
 		Assert.assertTrue(!ret);
 	}
 
 	@Test
 	public void testWithTwoObjects() throws Exception {
-		Colatti colatti = new Colatti();
-		Assert.assertTrue(colatti.addObject("A", "a", "b", "c"));
-		Assert.assertTrue(colatti.addObject("B", "b", "c", "d"));
+		Lattice lattice = new LatticeInMemory();
+		InsertObject colatti = new InsertObject(lattice);
+		Assert.assertTrue(colatti.perform("A", "a", "b", "c"));
+		Assert.assertTrue(colatti.perform("B", "b", "c", "d"));
 		log.debug("Supremum: {}", colatti.lattice().supremum());
 		log.debug("Infimum: {}", colatti.lattice().infimum());
 		Assert.assertTrue(colatti.lattice().concepts().size() == 4);
@@ -55,10 +57,11 @@ public class ColattiTest {
 
 	@Test
 	public void testWithThreeObjects() throws Exception {
-		Colatti colatti = new Colatti();
-		Assert.assertTrue(colatti.addObject("A", "a", "b", "c"));
-		Assert.assertTrue(colatti.addObject("B", "b", "c", "d"));
-		Assert.assertTrue(colatti.addObject("D", "e", "f"));
+		Lattice lattice = new LatticeInMemory();
+		InsertObject colatti = new InsertObject(lattice);
+		Assert.assertTrue(colatti.perform("A", "a", "b", "c"));
+		Assert.assertTrue(colatti.perform("B", "b", "c", "d"));
+		Assert.assertTrue(colatti.perform("D", "e", "f"));
 		Assert.assertTrue(colatti.lattice().concepts().size() == 6);
 
 		if (log.isDebugEnabled()) {
@@ -77,10 +80,11 @@ public class ColattiTest {
 
 	@Test
 	public void testAddExistingObjectDoesNotChangeLattice() throws Exception {
-		Colatti colatti = new Colatti();
-		Assert.assertTrue(colatti.addObject("A", "a", "b", "c"));
-		Assert.assertTrue(colatti.addObject("B", "b", "c", "d"));
-		Assert.assertTrue(colatti.addObject("D", "e", "f"));
+		Lattice lattice = new LatticeInMemory();
+		InsertObject colatti = new InsertObject(lattice);
+		Assert.assertTrue(colatti.perform("A", "a", "b", "c"));
+		Assert.assertTrue(colatti.perform("B", "b", "c", "d"));
+		Assert.assertTrue(colatti.perform("D", "e", "f"));
 		log.info("{}",colatti.lattice().concepts());
 		Assert.assertTrue(colatti.lattice().concepts().size() == 6);
 
@@ -97,7 +101,7 @@ public class ColattiTest {
 				log.debug(" << {}", c);
 			}
 
-		boolean affects = colatti.addObject("A", "a", "b", "c");
+		boolean affects = colatti.perform("A", "a", "b", "c");
 
 		if (log.isDebugEnabled())
 			for (Concept c : colatti.lattice().concepts()) {
@@ -120,25 +124,28 @@ public class ColattiTest {
 		 * This is a negative proof of the fact that only new objects can be
 		 * specified.
 		 */
-		Colatti colatti = new Colatti();
-		Assert.assertTrue(colatti.addObject("A", "a", "b", "c"));
-		Assert.assertTrue(colatti.addObject("B", "b", "c", "d"));
-		Assert.assertTrue(colatti.addObject("D", "e", "f"));
+		Lattice lattice = new LatticeInMemory();
+		InsertObject colatti = new InsertObject(lattice);
+		Assert.assertTrue(colatti.perform("A", "a", "b", "c"));
+		Assert.assertTrue(colatti.perform("B", "b", "c", "d"));
+		Assert.assertTrue(colatti.perform("D", "e", "f"));
 
-		Colatti colatti2 = new Colatti();
-		Assert.assertTrue(colatti2.addObject("A", "a"));
-		Assert.assertTrue(colatti2.addObject("B", "b", "c", "d"));
-		Assert.assertTrue(colatti2.addObject("D", "f"));
-		Assert.assertTrue(colatti2.addObject("D", "e"));
-		Assert.assertTrue(colatti2.addObject("A", "b"));
-		Assert.assertTrue(colatti2.addObject("A", "c"));
+		Lattice lattice2 = new LatticeInMemory();
+		InsertObject colatti2 = new InsertObject(lattice2);
+		Assert.assertTrue(colatti2.perform("A", "a"));
+		Assert.assertTrue(colatti2.perform("B", "b", "c", "d"));
+		Assert.assertTrue(colatti2.perform("D", "f"));
+		Assert.assertTrue(colatti2.perform("D", "e"));
+		Assert.assertTrue(colatti2.perform("A", "b"));
+		Assert.assertTrue(colatti2.perform("A", "c"));
 		Assert.assertTrue(colatti2.lattice().concepts().size() == colatti.lattice().concepts().size());
 		Assert.assertTrue(colatti.lattice().concepts().equals(colatti2.lattice().concepts()));
 	}
 
 	@Test
 	public void test1000RandomObjects() throws ColattiException {
-		Colatti colatti = new Colatti();
+		Lattice lattice = new LatticeInMemory();
+		InsertObject colatti = new InsertObject(lattice);
 		String attributes = "abcdefghijklmnopqrstuvwxyz0987654321";
 		Random rand = new Random();
 		int min = 1;
@@ -153,7 +160,7 @@ public class ColattiTest {
 				attrs.add(a);
 			}
 			log.trace(" - {} {}", object, attrs);
-			colatti.addObject(object, attrs);
+			colatti.perform(object, attrs);
 		}
 		log.debug("Added 1000 objects");
 		log.debug("Concepts: {}", colatti.lattice().concepts().size());
