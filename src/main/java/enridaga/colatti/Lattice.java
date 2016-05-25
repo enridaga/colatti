@@ -73,7 +73,7 @@ public class Lattice {
 	 * @param concept
 	 * @param parents
 	 */
-	public void setParents(Concept concept, Concept... parents) {
+	private void setParents(Concept concept, Concept... parents) {
 		_parents.put(concept, new HashSet<Concept>(Arrays.asList(parents)));
 	}
 
@@ -102,7 +102,7 @@ public class Lattice {
 	 * @param concept
 	 * @param parents
 	 */
-	public void setChildren(Concept concept, Concept... children) {
+	private void setChildren(Concept concept, Concept... children) {
 		_children.put(concept, new HashSet<Concept>(Arrays.asList(children)));
 	}
 
@@ -154,6 +154,10 @@ public class Lattice {
 		}
 	}
 
+	public boolean removeChild(Concept concept, Concept child) {
+		return removeParent(child, concept);
+	}
+
 	/**
 	 * Remove all occurrences of 'that' and replace them with occurrences of
 	 * 'with'. This method does not adjust the coherence of parent/child
@@ -184,12 +188,12 @@ public class Lattice {
 		}
 		attributeSizeIndex.get(with.attributes().size()).add(with);
 	}
-	
+
 	public int maxAttributeCardinality() {
 		return infimum().attributes().size();
 	}
-	
-	public Map<Integer,Set<Concept>> attributesSizeIndex() {
+
+	public Map<Integer, Set<Concept>> attributesSizeIndex() {
 		return Collections.unmodifiableMap(attributeSizeIndex);
 	}
 }
