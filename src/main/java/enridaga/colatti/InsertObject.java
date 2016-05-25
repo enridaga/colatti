@@ -9,13 +9,20 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Colatti {
-	private static final Logger L = LoggerFactory.getLogger(Colatti.class);
+/**
+ * This class implements the Godin algorithm for incremental Lattice construction.
+ * The new Object must not already exist.
+ * 
+ * @author ed4565
+ *
+ */
+public class InsertObject {
+	private static final Logger L = LoggerFactory.getLogger(InsertObject.class);
 
 	private Lattice lattice;
 
-	public Colatti() {
-		lattice = new LatticeInMemory();
+	public InsertObject(Lattice lattice) {
+		this.lattice = lattice;
 	}
 
 	public Lattice lattice() {
@@ -30,7 +37,7 @@ public class Colatti {
 	 * @return
 	 * @throws ColattiException
 	 */
-	public boolean addObject(Object object, Object... attributes) throws ColattiException {
+	public boolean perform(Object object, Object... attributes) throws ColattiException {
 		L.trace("Called add({},{})", object, attributes);
 
 		/**
