@@ -63,6 +63,9 @@ public class LatticeInMemory implements Lattice {
 	 * @see enridaga.colatti.Lattice#parents(enridaga.colatti.Concept)
 	 */
 	public Set<Concept> parents(Concept concept) {
+		if (_parents.get(concept) == null){
+			return Collections.emptySet();
+		}
 		return Collections.unmodifiableSet(_parents.get(concept));
 	}
 
@@ -70,6 +73,9 @@ public class LatticeInMemory implements Lattice {
 	 * @see enridaga.colatti.Lattice#children(enridaga.colatti.Concept)
 	 */
 	public Set<Concept> children(Concept concept) {
+		if (_children.get(concept) == null){
+			return Collections.emptySet();
+		}
 		return Collections.unmodifiableSet(_children.get(concept));
 	}
 
@@ -186,7 +192,7 @@ public class LatticeInMemory implements Lattice {
 			throw new ColattiException("'that' concept is not in the list");
 		}
 		_concepts.remove(that);
-		_concepts.add(with);
+		add(with);
 		Set<Concept> ppp = _parents.get(that);
 		_parents.remove(that);
 		_parents.put(with, ppp);
