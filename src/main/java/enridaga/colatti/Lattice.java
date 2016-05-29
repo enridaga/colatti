@@ -67,4 +67,5 @@ public interface Lattice {
 
 	Map<Integer, Set<Concept>> attributesSizeIndex();
 
+	public ConceptFactory getConceptFactory();
 }

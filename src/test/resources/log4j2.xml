@@ -8,7 +8,7 @@
 	</Appenders>
 	<Loggers>
 		<Logger name="org.apache.log4j.xml" level="info" />
-		<Logger name="enridaga.colatti" level="trace" />
+		<Logger name="enridaga.colatti" level="warn" />
 		<Logger name="enridaga.colatti.ColattiTest" level="debug" />
 		
 		<Root level="info">

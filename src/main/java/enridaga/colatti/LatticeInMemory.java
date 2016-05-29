@@ -26,6 +26,7 @@ public class LatticeInMemory implements Lattice {
 	private Map<Concept, Set<Concept>> _parents;
 	private Map<Concept, Set<Concept>> _children;
 	private Map<Integer, Set<Concept>> attributeSizeIndex = new HashMap<Integer, Set<Concept>>();
+	private ConceptFactory factory = new ConceptFactory();
 
 	public LatticeInMemory() {
 		_concepts = new TreeSet<Concept>(new AttributesAscSorter());
@@ -221,5 +222,9 @@ public class LatticeInMemory implements Lattice {
 	 */
 	public Map<Integer, Set<Concept>> attributesSizeIndex() {
 		return Collections.unmodifiableMap(attributeSizeIndex);
+	}
+	
+	public ConceptFactory getConceptFactory(){
+		return factory;
 	}
 }

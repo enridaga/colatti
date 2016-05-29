@@ -21,32 +21,32 @@ public class ConceptTest {
 
 	@Test
 	public void hashCodeTest() {
-		Concept a = Concept.make(new Object[] { 1, 2, 3 }, new Object[] { 5, 6, 7 });
-		Concept b = Concept.make(new Object[] { 1, 2, 3 }, new Object[] { 5, 6, 7 });
+		Concept a = new Concept(new Object[] { 1, 2, 3 }, new Object[] { 5, 6, 7 });
+		Concept b = new Concept(new Object[] { 1, 2, 3 }, new Object[] { 5, 6, 7 });
 		Assert.assertTrue(a.hashCode() == b.hashCode());
 	}
 
 	@Test
 	public void equalsTest() {
-		Concept a = Concept.make(new Object[] { 1, 2, 3 }, new Object[] { 5, 6, 7 });
+		Concept a = new Concept(new Object[] { 1, 2, 3 }, new Object[] { 5, 6, 7 });
 		Assert.assertTrue(a.equals(a));
 
-		Concept b = Concept.make(new Object[] { 1, 2, 3 }, new Object[] { 5, 6, 7 });
+		Concept b = new Concept(new Object[] { 1, 2, 3 }, new Object[] { 5, 6, 7 });
 		Assert.assertTrue(a.equals(b));
 	}
 
 	@Test
 	public void orderOfObjectsDoesNotCount() {
-		Concept a = Concept.make(new Object[] { 1, 2, 3 }, new Object[] { 5, 6, 7 });
-		Concept b = Concept.make(new Object[] { 3, 1, 2 }, new Object[] { 5, 6, 7 });
+		Concept a = new Concept(new Object[] { 1, 2, 3 }, new Object[] { 5, 6, 7 });
+		Concept b = new Concept(new Object[] { 3, 1, 2 }, new Object[] { 5, 6, 7 });
 		Assert.assertTrue(a.hashCode() == b.hashCode());
 		Assert.assertTrue(a.equals(b));
 	}
 
 	@Test
 	public void orderOfAttributesDoesNotCount() {
-		Concept a = Concept.make(new Object[] { 1, 2, 3 }, new Object[] { 5, 6, 7 });
-		Concept b = Concept.make(new Object[] { 1, 2, 3 }, new Object[] { 6, 7, 5 });
+		Concept a = new Concept(new Object[] { 1, 2, 3 }, new Object[] { 5, 6, 7 });
+		Concept b = new Concept(new Object[] { 1, 2, 3 }, new Object[] { 6, 7, 5 });
 		Assert.assertTrue(a.hashCode() == b.hashCode());
 		Assert.assertTrue(a.equals(b));
 	}

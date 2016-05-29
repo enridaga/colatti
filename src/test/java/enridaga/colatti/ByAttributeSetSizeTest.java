@@ -26,11 +26,11 @@ public class ByAttributeSetSizeTest {
 	@Test
 	public void test() {
 		Set<Concept> _concepts = new HashSet<Concept>();
-		Concept _5 = Concept.make(new String[] {}, new String[] { "a", "b", "c", "d" });
-		Concept _4 = Concept.make(new String[] { "A" }, new String[] { "a", "b", "c" });
-		Concept _3 = Concept.make(new String[] { "C" }, new String[] { "a", "c" });
-		Concept _2 = Concept.make(new String[] { "A", "B" }, new String[] { "a", "d" });
-		Concept _1 = Concept.make(new String[] { "A", "B", "C" }, new String[] {});
+		Concept _5 = new Concept(new String[] {}, new String[] { "a", "b", "c", "d" });
+		Concept _4 = new Concept(new String[] { "A" }, new String[] { "a", "b", "c" });
+		Concept _3 = new Concept(new String[] { "C" }, new String[] { "a", "c" });
+		Concept _2 = new Concept(new String[] { "A", "B" }, new String[] { "a", "d" });
+		Concept _1 = new Concept(new String[] { "A", "B", "C" }, new String[] {});
 
 		// Add unordered
 		_concepts.add(_4);

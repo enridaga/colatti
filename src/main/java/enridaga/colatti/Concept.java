@@ -20,17 +20,15 @@ public class Concept {
 	private Set<Object> attributes;
 	private int hashCode;
 
-	Concept() {
+	public Concept() {
 		this(Collections.emptySet(), Collections.emptySet());
 	}
 
-	public final static Concept empty = new Concept();
-
-	protected Concept(Object[] objects, Object[] attributes) {
+	public Concept(Object[] objects, Object[] attributes) {
 		this(new HashSet<Object>(Arrays.asList(objects)), new HashSet<Object>(Arrays.asList(attributes)));
 	}
 
-	private Concept(Set<Object> objects, Set<Object> attributes) {
+	public Concept(Set<Object> objects, Set<Object> attributes) {
 		this.objects = objects;
 		this.attributes = attributes;
 		this.hashCode = new HashCodeBuilder().append(objects).append(attributes).toHashCode();
@@ -56,44 +54,5 @@ public class Concept {
 
 	public int hashCode() {
 		return hashCode;
-	}
-
-	/*
-	 * STATIC
-	 */
-
-	public static final Concept make(Collection<Object> objects, Collection<Object> attributes) {
-		return new Concept(objects.toArray(), attributes.toArray());
-	}
-
-	public static final Concept make(Object[] objects, Object[] attributes) {
-		return new Concept(objects, attributes);
-	}
-
-	public static final Concept makeFromSingleObject(Object object, Object... attributes) {
-		return new Concept(new Object[] { object }, attributes);
-	}
-
-	public static final Concept makeAddAttributes(Concept concept, Object... attributesToAdd) {
-		Set<Object> attributes = new HashSet<Object>();
-		attributes.addAll(concept.attributes());
-		attributes.addAll(Arrays.asList(attributesToAdd));
-		return new Concept(concept.objects(), attributes);
-	}
-
-	public static final Concept makeAddObject(Concept concept, Object object) {
-		Set<Object> objects = new HashSet<Object>();
-		objects.addAll(concept.objects());
-		objects.add(object);
-		return new Concept(objects, concept.attributes());
-	}
-
-	public static final Concept makeJoinAttributes(Concept concept, Object[]... attributeSetsToJoin) {
-		Set<Object> attributes = new HashSet<Object>();
-		attributes.addAll(concept.attributes());
-		for (Object[] attributesToAdd : attributeSetsToJoin) {
-			attributes.addAll(Arrays.asList(attributesToAdd));
-		}
-		return new Concept(concept.objects(), attributes);
 	}
 }

@@ -51,9 +51,9 @@ public class InsertObject {
 		boolean created = false;
 		// 1. Adjust sup(G) for new attributes
 		// If lattice is empty
-		if (lattice.supremum().equals(Concept.empty)) {
+		if (lattice.supremum().equals(lattice.getConceptFactory().empty())) {
 			L.trace("Supremum is empty, creating concept and replace supremum");
-			Concept c = Concept.makeFromSingleObject(object, attributes);
+			Concept c = lattice.getConceptFactory().makeFromSingleObject(object, attributes);
 			created = true;
 			// This concept becomes sup(G)
 			lattice.replace(lattice.supremum(), c);
@@ -64,13 +64,13 @@ public class InsertObject {
 				// If the object set in the infimum is empty
 				if (lattice.infimum().objects().isEmpty()) {
 					L.trace("Infimum's object set is empty, replacing with a new infimum with all the new attributes as well.");
-					lattice.replace(lattice.infimum(), Concept.makeAddAttributes(lattice.infimum(), attributes));
+					lattice.replace(lattice.infimum(), lattice.getConceptFactory().makeAddAttributes(lattice.infimum(), attributes));
 				} else {
 					// The object set of the infimum is not empty.
 					// Create a new Concept with empty objects and all the
 					// attributes from the infimum plus the ones from this
 					// object, and set it as a new infimum
-					Concept newInfimum = Concept.makeJoinAttributes(Concept.empty,
+					Concept newInfimum = lattice.getConceptFactory().makeJoinAttributes(lattice.getConceptFactory().empty(),
 							lattice.infimum().attributes().toArray(), attributes);
 					created = true;
 					Concept oldInfimum = lattice.infimum();
@@ -122,7 +122,7 @@ public class InsertObject {
 					L.trace("Attributes of visiting is a subset of {}", attributes);
 					// modified concept
 					// add the new object to this concept
-					Concept modified = Concept.makeAddObject(visiting, object);
+					Concept modified = lattice.getConceptFactory().makeAddObject(visiting, object);
 					lattice.replace(visiting, modified);
 					visiting = modified;
 					collected.get(x).add(modified);
@@ -165,7 +165,7 @@ public class InsertObject {
 						L.trace("Visiting is a generator");
 						Set<Object> objects = new HashSet<Object>(visiting.objects());
 						objects.add(object);
-						Concept newConcept = Concept.make(objects.toArray(), intersection.toArray());
+						Concept newConcept = lattice.getConceptFactory().make(objects.toArray(), intersection.toArray());
 						L.trace("Generating new concept: {}", newConcept);
 						lattice.add(newConcept);
 						created = true;
