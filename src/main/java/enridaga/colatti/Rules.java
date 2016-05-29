@@ -161,9 +161,9 @@ public class Rules {
 					// IF Intent(p) = b. There exists a set of objects only
 					// satisfying b (parent’s intent will be shorter then
 					// Intent(c) )
-					if (o.attributes().size() == b.size() && CollectionUtils.removeAll(o.attributes(), b).isEmpty()) {
-						L.debug("Adjust confidence");
-						confidence = ((double) r.support()) / ((double) o.objects().size());
+					if (o.attributes().containsAll(b) && ! CollectionUtils.containsAny(o.attributes(), H)) {
+						L.debug("Set confidence: {}/{}",  ((double) c.objects().size()) , ((double) o.objects().size()));
+						confidence = ((double) c.objects().size()) / ((double) o.objects().size());
 						break;
 					}
 				}
