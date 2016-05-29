@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ConceptTest {
-	private final static Logger log = LoggerFactory.getLogger(Concept.class);
+	private final static Logger log = LoggerFactory.getLogger(ConceptInMemory.class);
 
 	@Rule
 	public TestName name = new TestName();
@@ -21,32 +21,32 @@ public class ConceptTest {
 
 	@Test
 	public void hashCodeTest() {
-		Concept a = new Concept(new Object[] { 1, 2, 3 }, new Object[] { 5, 6, 7 });
-		Concept b = new Concept(new Object[] { 1, 2, 3 }, new Object[] { 5, 6, 7 });
+		Concept a = new ConceptInMemory(new Object[] { 1, 2, 3 }, new Object[] { 5, 6, 7 });
+		Concept b = new ConceptInMemory(new Object[] { 1, 2, 3 }, new Object[] { 5, 6, 7 });
 		Assert.assertTrue(a.hashCode() == b.hashCode());
 	}
 
 	@Test
 	public void equalsTest() {
-		Concept a = new Concept(new Object[] { 1, 2, 3 }, new Object[] { 5, 6, 7 });
+		Concept a = new ConceptInMemory(new Object[] { 1, 2, 3 }, new Object[] { 5, 6, 7 });
 		Assert.assertTrue(a.equals(a));
 
-		Concept b = new Concept(new Object[] { 1, 2, 3 }, new Object[] { 5, 6, 7 });
+		Concept b = new ConceptInMemory(new Object[] { 1, 2, 3 }, new Object[] { 5, 6, 7 });
 		Assert.assertTrue(a.equals(b));
 	}
 
 	@Test
 	public void orderOfObjectsDoesNotCount() {
-		Concept a = new Concept(new Object[] { 1, 2, 3 }, new Object[] { 5, 6, 7 });
-		Concept b = new Concept(new Object[] { 3, 1, 2 }, new Object[] { 5, 6, 7 });
+		Concept a = new ConceptInMemory(new Object[] { 1, 2, 3 }, new Object[] { 5, 6, 7 });
+		Concept b = new ConceptInMemory(new Object[] { 3, 1, 2 }, new Object[] { 5, 6, 7 });
 		Assert.assertTrue(a.hashCode() == b.hashCode());
 		Assert.assertTrue(a.equals(b));
 	}
 
 	@Test
 	public void orderOfAttributesDoesNotCount() {
-		Concept a = new Concept(new Object[] { 1, 2, 3 }, new Object[] { 5, 6, 7 });
-		Concept b = new Concept(new Object[] { 1, 2, 3 }, new Object[] { 6, 7, 5 });
+		Concept a = new ConceptInMemory(new Object[] { 1, 2, 3 }, new Object[] { 5, 6, 7 });
+		Concept b = new ConceptInMemory(new Object[] { 1, 2, 3 }, new Object[] { 6, 7, 5 });
 		Assert.assertTrue(a.hashCode() == b.hashCode());
 		Assert.assertTrue(a.equals(b));
 	}

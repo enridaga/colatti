@@ -1,6 +1,7 @@
 package enridaga.colatti.shared;
 
 import java.util.Comparator;
+
 import enridaga.colatti.Concept;
 
 public class AttributesAscSorter implements Comparator<Concept> {

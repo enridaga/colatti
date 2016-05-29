@@ -44,8 +44,8 @@ public class ColattiTest {
 		log.debug("Infimum: {}", colatti.lattice().infimum());
 		Assert.assertTrue(colatti.lattice().concepts().size() == 4);
 
-		Concept supremumTest = new Concept(new String[] { "A", "B" }, new String[] { "b", "c" });
-		Concept infimumTest = new Concept(new String[] {}, new String[] { "a", "b", "c", "d" });
+		Concept supremumTest = new ConceptInMemory(new String[] { "A", "B" }, new String[] { "b", "c" });
+		Concept infimumTest = new ConceptInMemory(new String[] {}, new String[] { "a", "b", "c", "d" });
 
 		Assert.assertTrue(colatti.lattice().supremum().equals(supremumTest));
 		Assert.assertTrue(colatti.lattice().infimum().equals(infimumTest));
@@ -68,8 +68,8 @@ public class ColattiTest {
 			log.debug("Supremum: {}", colatti.lattice().supremum());
 			log.debug("Infimum: {}", colatti.lattice().infimum());
 		}
-		Concept supremumTest = new Concept(new String[] { "D", "A", "B" }, new String[] {});
-		Concept infimumTest = new Concept(new String[] {}, new String[] { "e", "f", "a", "b", "c", "d" });
+		Concept supremumTest = new ConceptInMemory(new String[] { "D", "A", "B" }, new String[] {});
+		Concept infimumTest = new ConceptInMemory(new String[] {}, new String[] { "e", "f", "a", "b", "c", "d" });
 		Assert.assertTrue(colatti.lattice().supremum().equals(supremumTest));
 		Assert.assertTrue(colatti.lattice().infimum().equals(infimumTest));
 		if (log.isDebugEnabled())
@@ -92,8 +92,8 @@ public class ColattiTest {
 			log.debug("Supremum: {}", colatti.lattice().supremum());
 			log.debug("Infimum: {}", colatti.lattice().infimum());
 		}
-		Concept supremumTest = new Concept(new String[] { "D", "A", "B" }, new String[] {});
-		Concept infimumTest = new Concept(new String[] {}, new String[] { "e", "f", "a", "b", "c", "d" });
+		Concept supremumTest = new ConceptInMemory(new String[] { "D", "A", "B" }, new String[] {});
+		Concept infimumTest = new ConceptInMemory(new String[] {}, new String[] { "e", "f", "a", "b", "c", "d" });
 		Assert.assertTrue(colatti.lattice().supremum().equals(supremumTest));
 		Assert.assertTrue(colatti.lattice().infimum().equals(infimumTest));
 		if (log.isDebugEnabled())
