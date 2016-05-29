@@ -26,7 +26,7 @@ public class Concept {
 
 	public final static Concept empty = new Concept();
 
-	private Concept(Object[] objects, Object[] attributes) {
+	protected Concept(Object[] objects, Object[] attributes) {
 		this(new HashSet<Object>(Arrays.asList(objects)), new HashSet<Object>(Arrays.asList(attributes)));
 	}
 
