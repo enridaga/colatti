@@ -114,7 +114,7 @@ public class InsertObject {
 			collected.put(x, new HashSet<Concept>());
 			// Treat each set in ascending cardinality order
 			// For each Concept
-			for (Concept visiting : current) {
+			for (Concept visiting : new HashSet<Concept>(current)) {
 				L.trace("Visiting {}", visiting);
 				// If the attributes of visiting is a subset of the attributes
 				// of the new object
