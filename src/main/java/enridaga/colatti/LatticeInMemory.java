@@ -26,7 +26,7 @@ public class LatticeInMemory implements Lattice {
 	private Map<ConceptInMemory, Set<ConceptInMemory>> _parents;
 	private Map<ConceptInMemory, Set<ConceptInMemory>> _children;
 	private Map<Integer, Set<ConceptInMemory>> attributeSizeIndex = new HashMap<Integer, Set<ConceptInMemory>>();
-	private ConceptFactory factory = new ConceptFactory();
+	private ConceptFactory factory = new ConceptFactoryInMemory();
 
 	public LatticeInMemory() {
 		_concepts = new TreeSet<ConceptInMemory>(new AttributesAscSorter());
