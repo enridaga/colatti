@@ -121,7 +121,7 @@ public class Rules {
 		this.lattice = lattice;
 	}
 
-	public Rule[] rules(Object[] inHead, Object[] inBody) {
+	public Rule[] rules(Object[] inHead, Object[] inBody) throws ColattiException{
 		L.debug("Seeking rules inHead: {} inBody: {}", inHead, inBody);
 		// Pick the portion of inHead in the lattice
 		// A FIFO list

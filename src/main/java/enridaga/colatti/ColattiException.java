@@ -13,4 +13,8 @@ public class ColattiException extends Exception {
 	public ColattiException(String msg, Throwable cause) {
 		super(msg, cause);
 	}
+
+	public ColattiException(Exception e) {
+		super(e);
+	}
 }

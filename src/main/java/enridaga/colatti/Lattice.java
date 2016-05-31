@@ -14,15 +14,15 @@ public interface Lattice {
 
 	// List<Concept> concepts();
 
-	Concept supremum();
+	Concept supremum() throws ColattiException;
 
-	Concept infimum();
+	Concept infimum() throws ColattiException;
 
-	Set<Concept> parents(Concept concept);
+	Set<Concept> parents(Concept concept) throws ColattiException;
 
-	Set<Concept> children(Concept concept);
+	Set<Concept> children(Concept concept) throws ColattiException;
 
-	boolean add(Concept concept);
+	boolean add(Concept concept) throws ColattiException;
 
 	/**
 	 * This method adjust children relationships as well.
@@ -30,7 +30,7 @@ public interface Lattice {
 	 * @param concept
 	 * @param parents
 	 */
-	void addParents(Concept concept, Concept... parents);
+	void addParents(Concept concept, Concept... parents) throws ColattiException;
 
 	/**
 	 * This method adjust parents relationships as well.
@@ -38,9 +38,9 @@ public interface Lattice {
 	 * @param concept
 	 * @param parents
 	 */
-	void addChildren(Concept concept, Concept... children);
+	void addChildren(Concept concept, Concept... children) throws ColattiException;
 
-	boolean isParentOf(Concept concept, Concept parent);
+	boolean isParentOf(Concept concept, Concept parent) throws ColattiException;
 
 	/**
 	 * This method also adjust the inverse child relation.
@@ -48,10 +48,11 @@ public interface Lattice {
 	 * @param concept
 	 * @param parent
 	 * @return boolean - if the change was effective
+	 * @throws ColattiException 
 	 */
-	boolean removeParent(Concept concept, Concept parent);
+	boolean removeParent(Concept concept, Concept parent) throws ColattiException;
 
-	boolean removeChild(Concept concept, Concept child);
+	boolean removeChild(Concept concept, Concept child) throws ColattiException;
 
 	/**
 	 * Remove all occurrences of 'that' and replace them with occurrences of
@@ -64,17 +65,17 @@ public interface Lattice {
 	 */
 	void replace(Concept that, Concept with) throws ColattiException;
 
-	int maxAttributeCardinality();
+	int maxAttributeCardinality() throws ColattiException;
 
 	// Map<Integer, Set<Concept>> attributesSizeIndex();
 
 	public ConceptFactory getConceptFactory();
 
-	Set<Concept> getConceptsWithAttributesSize(int x);
+	Set<Concept> getConceptsWithAttributesSize(int x) throws ColattiException;
 
-	int size();
+	int size() throws ColattiException;
 
-	default void bottomUp(Function<Concept, Boolean> function) {
+	default void bottomUp(Function<Concept, Boolean> function) throws ColattiException {
 		List<Concept> stack = new ArrayList<Concept>();
 		stack.add(this.infimum());
 		while (!stack.isEmpty()) {
@@ -90,7 +91,7 @@ public interface Lattice {
 		}
 	}
 
-	default void topDown(Function<Concept, Boolean> function) {
+	default void topDown(Function<Concept, Boolean> function) throws ColattiException {
 		List<Concept> stack = new ArrayList<Concept>();
 		stack.add(this.supremum());
 		while (!stack.isEmpty()) {

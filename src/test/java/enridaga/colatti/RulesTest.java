@@ -13,7 +13,7 @@ public class RulesTest {
 	@Rule
 	public TestName name = new TestName();
 
-	private Rules test(Lattice lattice, Object[] inHead, Object[] inBody) {
+	private Rules test(Lattice lattice, Object[] inHead, Object[] inBody) throws ColattiException {
 		l.info("Testing: {} {}", inHead, inBody);
 		Rules rules = new Rules(lattice);
 		enridaga.colatti.Rules.Rule[] r = rules.rules(inHead, inBody);
