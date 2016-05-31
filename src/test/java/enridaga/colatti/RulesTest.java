@@ -16,8 +16,8 @@ public class RulesTest {
 	private Rules test(Lattice lattice, Object[] inHead, Object[] inBody) throws ColattiException {
 		l.info("Testing: {} {}", inHead, inBody);
 		Rules rules = new Rules(lattice);
-		enridaga.colatti.Rules.Rule[] r = rules.rules(inHead, inBody);
-		for (enridaga.colatti.Rules.Rule x : r) {
+		enridaga.colatti.Rule[] r = rules.rules(inHead, inBody);
+		for (enridaga.colatti.Rule x : r) {
 			l.trace("Generated {}", x);
 		}
 		return rules;
