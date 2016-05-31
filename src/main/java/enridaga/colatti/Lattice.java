@@ -11,17 +11,17 @@ import java.util.Set;
  */
 public interface Lattice {
 
-	List<ConceptInMemory> concepts();
+	List<Concept> concepts();
 
 	Concept supremum();
 
-	ConceptInMemory infimum();
+	Concept infimum();
 
-	Set<ConceptInMemory> parents(Concept concept);
+	Set<Concept> parents(Concept concept);
 
-	Set<ConceptInMemory> children(Concept concept);
+	Set<Concept> children(Concept concept);
 
-	boolean add(ConceptInMemory concept);
+	boolean add(Concept concept);
 
 	/**
 	 * This method adjust children relationships as well.
@@ -29,7 +29,7 @@ public interface Lattice {
 	 * @param concept
 	 * @param parents
 	 */
-	void addParents(ConceptInMemory concept, ConceptInMemory... parents);
+	void addParents(Concept concept, Concept... parents);
 
 	/**
 	 * This method adjust parents relationships as well.
@@ -37,7 +37,7 @@ public interface Lattice {
 	 * @param concept
 	 * @param parents
 	 */
-	void addChildren(ConceptInMemory concept, ConceptInMemory... children);
+	void addChildren(Concept concept, Concept... children);
 
 	boolean isParentOf(Concept concept, Concept parent);
 
@@ -61,11 +61,11 @@ public interface Lattice {
 	 * @param with
 	 * @throws ColattiException
 	 */
-	void replace(Concept that, ConceptInMemory with) throws ColattiException;
+	void replace(Concept that, Concept with) throws ColattiException;
 
 	int maxAttributeCardinality();
 
-	Map<Integer, Set<ConceptInMemory>> attributesSizeIndex();
+	Map<Integer, Set<Concept>> attributesSizeIndex();
 
 	public ConceptFactory getConceptFactory();
 }

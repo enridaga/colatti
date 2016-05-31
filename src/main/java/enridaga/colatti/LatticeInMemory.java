@@ -22,16 +22,16 @@ import enridaga.colatti.shared.AttributesAscSorter;
  */
 public class LatticeInMemory implements Lattice {
 	private final Logger log = LoggerFactory.getLogger(LatticeInMemory.class);
-	private TreeSet<ConceptInMemory> _concepts;
-	private Map<ConceptInMemory, Set<ConceptInMemory>> _parents;
-	private Map<ConceptInMemory, Set<ConceptInMemory>> _children;
-	private Map<Integer, Set<ConceptInMemory>> attributeSizeIndex = new HashMap<Integer, Set<ConceptInMemory>>();
+	private TreeSet<Concept> _concepts;
+	private Map<Concept, Set<Concept>> _parents;
+	private Map<Concept, Set<Concept>> _children;
+	private Map<Integer, Set<Concept>> attributeSizeIndex = new HashMap<Integer, Set<Concept>>();
 	private ConceptFactory factory = new ConceptFactoryInMemory();
 
 	public LatticeInMemory() {
-		_concepts = new TreeSet<ConceptInMemory>(new AttributesAscSorter());
-		_parents = new HashMap<ConceptInMemory, Set<ConceptInMemory>>();
-		_children = new HashMap<ConceptInMemory, Set<ConceptInMemory>>();
+		_concepts = new TreeSet<Concept>(new AttributesAscSorter());
+		_parents = new HashMap<Concept, Set<Concept>>();
+		_children = new HashMap<Concept, Set<Concept>>();
 		// Initialization with an empty concept
 		ConceptInMemory empty = new ConceptInMemory();
 		add(empty);
@@ -39,60 +39,72 @@ public class LatticeInMemory implements Lattice {
 		setChildren(empty);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see enridaga.colatti.Lattice#concepts()
 	 */
-	public List<ConceptInMemory> concepts() {
-		return Collections.unmodifiableList(Arrays.asList(_concepts.toArray(new ConceptInMemory[_concepts.size()])));
+	public List<Concept> concepts() {
+		return Collections.unmodifiableList(Arrays.asList(_concepts.toArray(new Concept[_concepts.size()])));
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see enridaga.colatti.Lattice#supremum()
 	 */
 	public Concept supremum() {
 		return _concepts.first();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see enridaga.colatti.Lattice#infimum()
 	 */
-	public ConceptInMemory infimum() {
+	public Concept infimum() {
 		return _concepts.last();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see enridaga.colatti.Lattice#parents(enridaga.colatti.ConceptInMemory)
 	 */
-	public Set<ConceptInMemory> parents(Concept concept) {
-		if (_parents.get(concept) == null){
+	public Set<Concept> parents(Concept concept) {
+		if (_parents.get(concept) == null) {
 			return Collections.emptySet();
 		}
 		return Collections.unmodifiableSet(_parents.get(concept));
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see enridaga.colatti.Lattice#children(enridaga.colatti.ConceptInMemory)
 	 */
-	public Set<ConceptInMemory> children(Concept concept) {
-		if (_children.get(concept) == null){
+	public Set<Concept> children(Concept concept) {
+		if (_children.get(concept) == null) {
 			return Collections.emptySet();
 		}
 		return Collections.unmodifiableSet(_children.get(concept));
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see enridaga.colatti.Lattice#add(enridaga.colatti.ConceptInMemory)
 	 */
-	public boolean add(ConceptInMemory concept) {
+	public boolean add(Concept concept) {
 		boolean ret = _concepts.add(concept);
 		if (!_parents.containsKey(concept)) {
-			_parents.put(concept, new HashSet<ConceptInMemory>());
+			_parents.put(concept, new HashSet<Concept>());
 		}
 		if (!_children.containsKey(concept)) {
-			_children.put(concept, new HashSet<ConceptInMemory>());
+			_children.put(concept, new HashSet<Concept>());
 		}
 		if (!attributeSizeIndex.containsKey(concept.attributes().size())) {
-			attributeSizeIndex.put(concept.attributes().size(), new HashSet<ConceptInMemory>());
+			attributeSizeIndex.put(concept.attributes().size(), new HashSet<Concept>());
 		}
 		attributeSizeIndex.get(concept.attributes().size()).add(concept);
 		return ret;
@@ -105,20 +117,24 @@ public class LatticeInMemory implements Lattice {
 	 * @param parents
 	 */
 	private void setParents(ConceptInMemory concept, ConceptInMemory... parents) {
-		_parents.put(concept, new HashSet<ConceptInMemory>(Arrays.asList(parents)));
+		_parents.put(concept, new HashSet<Concept>(Arrays.asList(parents)));
 	}
 
-	/* (non-Javadoc)
-	 * @see enridaga.colatti.Lattice#addParents(enridaga.colatti.ConceptInMemory, enridaga.colatti.ConceptInMemory)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * enridaga.colatti.Lattice#addParents(enridaga.colatti.ConceptInMemory,
+	 * enridaga.colatti.ConceptInMemory)
 	 */
-	public void addParents(ConceptInMemory concept, ConceptInMemory... parents) {
+	public void addParents(Concept concept, Concept... parents) {
 		if (!_parents.containsKey(concept)) {
-			_parents.put(concept, new HashSet<ConceptInMemory>());
+			_parents.put(concept, new HashSet<Concept>());
 		}
 		_parents.get(concept).addAll(Arrays.asList(parents));
-		for (ConceptInMemory p : parents) {
+		for (Concept p : parents) {
 			if (!_children.containsKey(p)) {
-				_children.put(p, new HashSet<ConceptInMemory>());
+				_children.put(p, new HashSet<Concept>());
 			}
 			_children.get(p).add(concept);
 		}
@@ -131,27 +147,35 @@ public class LatticeInMemory implements Lattice {
 	 * @param parents
 	 */
 	private void setChildren(ConceptInMemory concept, ConceptInMemory... children) {
-		_children.put(concept, new HashSet<ConceptInMemory>(Arrays.asList(children)));
+		_children.put(concept, new HashSet<Concept>(Arrays.asList(children)));
 	}
 
-	/* (non-Javadoc)
-	 * @see enridaga.colatti.Lattice#addChildren(enridaga.colatti.ConceptInMemory, enridaga.colatti.ConceptInMemory)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * enridaga.colatti.Lattice#addChildren(enridaga.colatti.ConceptInMemory,
+	 * enridaga.colatti.ConceptInMemory)
 	 */
-	public void addChildren(ConceptInMemory concept, ConceptInMemory... children) {
+	public void addChildren(Concept concept, Concept... children) {
 		if (!_children.containsKey(concept)) {
-			_children.put(concept, new HashSet<ConceptInMemory>());
+			_children.put(concept, new HashSet<Concept>());
 		}
 		_children.get(concept).addAll(Arrays.asList(children));
-		for (ConceptInMemory c : children) {
+		for (Concept c : children) {
 			if (!_parents.containsKey(c)) {
-				_parents.put(c, new HashSet<ConceptInMemory>());
+				_parents.put(c, new HashSet<Concept>());
 			}
 			_parents.get(c).add(concept);
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see enridaga.colatti.Lattice#isParentOf(enridaga.colatti.ConceptInMemory, enridaga.colatti.ConceptInMemory)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * enridaga.colatti.Lattice#isParentOf(enridaga.colatti.ConceptInMemory,
+	 * enridaga.colatti.ConceptInMemory)
 	 */
 	public boolean isParentOf(Concept concept, Concept parent) {
 		if (!_parents.containsKey(concept))
@@ -159,8 +183,12 @@ public class LatticeInMemory implements Lattice {
 		return _parents.get(concept).contains(parent);
 	}
 
-	/* (non-Javadoc)
-	 * @see enridaga.colatti.Lattice#removeParent(enridaga.colatti.ConceptInMemory, enridaga.colatti.ConceptInMemory)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * enridaga.colatti.Lattice#removeParent(enridaga.colatti.ConceptInMemory,
+	 * enridaga.colatti.ConceptInMemory)
 	 */
 	public boolean removeParent(Concept concept, Concept parent) {
 		if (!_parents.containsKey(concept)) {
@@ -178,26 +206,33 @@ public class LatticeInMemory implements Lattice {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see enridaga.colatti.Lattice#removeChild(enridaga.colatti.ConceptInMemory, enridaga.colatti.ConceptInMemory)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * enridaga.colatti.Lattice#removeChild(enridaga.colatti.ConceptInMemory,
+	 * enridaga.colatti.ConceptInMemory)
 	 */
 	public boolean removeChild(Concept concept, Concept child) {
 		return removeParent(child, concept);
 	}
 
-	/* (non-Javadoc)
-	 * @see enridaga.colatti.Lattice#replace(enridaga.colatti.ConceptInMemory, enridaga.colatti.ConceptInMemory)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see enridaga.colatti.Lattice#replace(enridaga.colatti.ConceptInMemory,
+	 * enridaga.colatti.ConceptInMemory)
 	 */
-	public void replace(Concept that, ConceptInMemory with) throws ColattiException {
+	public void replace(Concept that, Concept with) throws ColattiException {
 		if (!_concepts.contains(that)) {
 			throw new ColattiException("'that' concept is not in the list");
 		}
 		_concepts.remove(that);
 		add(with);
-		Set<ConceptInMemory> ppp = _parents.get(that);
+		Set<Concept> ppp = _parents.get(that);
 		_parents.remove(that);
 		_parents.put(with, ppp);
-		Set<ConceptInMemory> ccc = _children.get(that);
+		Set<Concept> ccc = _children.get(that);
 		_children.remove(that);
 		_children.put(with, ccc);
 
@@ -205,26 +240,30 @@ public class LatticeInMemory implements Lattice {
 			attributeSizeIndex.get(that.attributes().size()).remove(that);
 
 		if (!attributeSizeIndex.containsKey(with.attributes().size())) {
-			attributeSizeIndex.put(with.attributes().size(), new HashSet<ConceptInMemory>());
+			attributeSizeIndex.put(with.attributes().size(), new HashSet<Concept>());
 		}
 		attributeSizeIndex.get(with.attributes().size()).add(with);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see enridaga.colatti.Lattice#maxAttributeCardinality()
 	 */
 	public int maxAttributeCardinality() {
 		return infimum().attributes().size();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see enridaga.colatti.Lattice#attributesSizeIndex()
 	 */
-	public Map<Integer, Set<ConceptInMemory>> attributesSizeIndex() {
+	public Map<Integer, Set<Concept>> attributesSizeIndex() {
 		return Collections.unmodifiableMap(attributeSizeIndex);
 	}
-	
-	public ConceptFactory getConceptFactory(){
+
+	public ConceptFactory getConceptFactory() {
 		return factory;
 	}
 }

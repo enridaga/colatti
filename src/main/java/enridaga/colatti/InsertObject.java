@@ -53,7 +53,7 @@ public class InsertObject {
 		// If lattice is empty
 		if (lattice.supremum().equals(lattice.getConceptFactory().empty())) {
 			L.trace("Supremum is empty, creating concept and replace supremum");
-			ConceptInMemory c = lattice.getConceptFactory().makeFromSingleObject(object, attributes);
+			Concept c = lattice.getConceptFactory().makeFromSingleObject(object, attributes);
 			created = true;
 			// This concept becomes sup(G)
 			lattice.replace(lattice.supremum(), c);
@@ -67,13 +67,13 @@ public class InsertObject {
 					lattice.replace(lattice.infimum(), lattice.getConceptFactory().makeAddAttributes(lattice.infimum(), attributes));
 				} else {
 					// The object set of the infimum is not empty.
-					// Create a new ConceptInMemory with empty objects and all the
+					// Create a new Concept with empty objects and all the
 					// attributes from the infimum plus the ones from this
 					// object, and set it as a new infimum
-					ConceptInMemory newInfimum = lattice.getConceptFactory().makeJoinAttributes(lattice.getConceptFactory().empty(),
+					Concept newInfimum = lattice.getConceptFactory().makeJoinAttributes(lattice.getConceptFactory().empty(),
 							lattice.infimum().attributes().toArray(), attributes);
 					created = true;
-					ConceptInMemory oldInfimum = lattice.infimum();
+					Concept oldInfimum = lattice.infimum();
 					L.trace("old infimum: {}", oldInfimum);
 					L.trace("new infimum: {}", newInfimum);
 					if (L.isDebugEnabled()) {
@@ -103,18 +103,18 @@ public class InsertObject {
 
 		// 2. Get the Concepts grouped by attribute set cardinality (ordered
 		// ascending)
-		Map<Integer, Set<ConceptInMemory>> collected = new HashMap<Integer, Set<ConceptInMemory>>();
+		Map<Integer, Set<Concept>> collected = new HashMap<Integer, Set<Concept>>();
 		L.trace("Iterating over all concepts from the top down");
 		for (int x = 0; x <= lattice.maxAttributeCardinality(); x++) {
 			// while (iterator.hasNext()) {
-			Set<ConceptInMemory> current = lattice.attributesSizeIndex().get(x); // iterator.next();
+			Set<Concept> current = lattice.attributesSizeIndex().get(x); // iterator.next();
 			if (current == null)
 				continue;
 			L.trace("Iterating on size {} attrs concept", x);
-			collected.put(x, new HashSet<ConceptInMemory>());
+			collected.put(x, new HashSet<Concept>());
 			// Treat each set in ascending cardinality order
-			// For each ConceptInMemory
-			for (ConceptInMemory visiting : new HashSet<ConceptInMemory>(current)) {
+			// For each Concept
+			for (Concept visiting : new HashSet<Concept>(current)) {
 				L.trace("Visiting {}", visiting);
 				// If the attributes of visiting is a subset of the attributes
 				// of the new object
@@ -122,7 +122,7 @@ public class InsertObject {
 					L.trace("Attributes of visiting is a subset of {}", attributes);
 					// modified concept
 					// add the new object to this concept
-					ConceptInMemory modified = lattice.getConceptFactory().makeAddObject(visiting, object);
+					Concept modified = lattice.getConceptFactory().makeAddObject(visiting, object);
 					lattice.replace(visiting, modified);
 					visiting = modified;
 					collected.get(x).add(modified);
@@ -144,13 +144,13 @@ public class InsertObject {
 					intersection.retainAll(visiting.attributes());
 					L.trace("Trying intersection {}", intersection);
 					/*
-					 * If we already visited a ConceptInMemory with the same attributes,
+					 * If we already visited a Concept with the same attributes,
 					 * then visiting is a generator. (assumption: intersection
 					 * is smaller then current and we are traversing an ordered
 					 * sequence)
 					 */
 					boolean isGenerator = true;
-					Set<ConceptInMemory> existsIn = collected.get(intersection.size());
+					Set<Concept> existsIn = collected.get(intersection.size());
 					if (existsIn != null) {
 						for (Concept c : existsIn) {
 							if (c.attributes().containsAll(intersection)) {
@@ -165,13 +165,13 @@ public class InsertObject {
 						L.trace("Visiting is a generator");
 						Set<Object> objects = new HashSet<Object>(visiting.objects());
 						objects.add(object);
-						ConceptInMemory newConcept = lattice.getConceptFactory().make(objects.toArray(), intersection.toArray());
+						Concept newConcept = lattice.getConceptFactory().make(objects.toArray(), intersection.toArray());
 						L.trace("Generating new concept: {}", newConcept);
 						lattice.add(newConcept);
 						created = true;
 
 						if (!collected.containsKey(newConcept.attributes().size())) {
-							collected.put(newConcept.attributes().size(), new HashSet<ConceptInMemory>());
+							collected.put(newConcept.attributes().size(), new HashSet<Concept>());
 						}
 						collected.get(newConcept.attributes().size()).add(newConcept);
 						// Add edge from the new concept to the generator
@@ -183,7 +183,7 @@ public class InsertObject {
 						// Now modifying edges
 						for (int l = 0; l < intersection.size(); l++) {
 							if (collected.containsKey(l)) {
-								for (ConceptInMemory ha : collected.get(l)) {
+								for (Concept ha : collected.get(l)) {
 									// If the attribute set is a strict subset
 									// of intersections
 									// then this is a potential parent of the

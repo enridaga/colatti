@@ -125,7 +125,7 @@ public class Rules {
 		L.debug("Seeking rules inHead: {} inBody: {}", inHead, inBody);
 		// Pick the portion of inHead in the lattice
 		// A FIFO list
-		List<ConceptInMemory> C = new ArrayList<ConceptInMemory>();
+		List<Concept> C = new ArrayList<Concept>();
 		Set<Rule> R = new HashSet<Rule>();
 		C.add(lattice.infimum());
 		while (!C.isEmpty()) {
@@ -134,8 +134,8 @@ public class Rules {
 			if (!H.isEmpty() && !CollectionUtils.retainAll(c.attributes(), Arrays.asList(inBody)).isEmpty()) {
 				L.debug("Traverse: {}", c);
 				// Add all parents of c to C
-				Set<ConceptInMemory> parents = lattice.parents(c);
-				for(ConceptInMemory p: parents){
+				Set<Concept> parents = lattice.parents(c);
+				for(Concept p: parents){
 					if(!C.contains(p)){
 						C.add(p);
 					}
