@@ -107,7 +107,7 @@ public class InsertObject {
 		L.trace("Iterating over all concepts from the top down");
 		for (int x = 0; x <= lattice.maxAttributeCardinality(); x++) {
 			// while (iterator.hasNext()) {
-			Set<Concept> current = lattice.attributesSizeIndex().get(x); // iterator.next();
+			Set<Concept> current = lattice.getConceptsWithAttributesSize(x); // iterator.next();
 			if (current == null)
 				continue;
 			L.trace("Iterating on size {} attrs concept", x);

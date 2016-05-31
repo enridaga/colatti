@@ -259,11 +259,23 @@ public class LatticeInMemory implements Lattice {
 	 * 
 	 * @see enridaga.colatti.Lattice#attributesSizeIndex()
 	 */
-	public Map<Integer, Set<Concept>> attributesSizeIndex() {
+	private Map<Integer, Set<Concept>> attributesSizeIndex() {
 		return Collections.unmodifiableMap(attributeSizeIndex);
 	}
 
 	public ConceptFactory getConceptFactory() {
 		return factory;
 	}
+
+	@Override
+	public Set<Concept> getConceptsWithAttributesSize(int x) {
+		return attributesSizeIndex().get(x);
+	}
+	
+	@Override
+	public int size() {
+		return _concepts.size();
+	}
+	
+	
 }

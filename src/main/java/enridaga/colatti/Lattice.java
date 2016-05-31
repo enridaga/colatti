@@ -1,8 +1,9 @@
 package enridaga.colatti;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * 
@@ -11,7 +12,7 @@ import java.util.Set;
  */
 public interface Lattice {
 
-	List<Concept> concepts();
+	// List<Concept> concepts();
 
 	Concept supremum();
 
@@ -65,7 +66,44 @@ public interface Lattice {
 
 	int maxAttributeCardinality();
 
-	Map<Integer, Set<Concept>> attributesSizeIndex();
+	// Map<Integer, Set<Concept>> attributesSizeIndex();
 
 	public ConceptFactory getConceptFactory();
+
+	Set<Concept> getConceptsWithAttributesSize(int x);
+
+	int size();
+
+	default void bottomUp(Function<Concept, Boolean> function) {
+		List<Concept> stack = new ArrayList<Concept>();
+		stack.add(this.infimum());
+		while (!stack.isEmpty()) {
+			Concept current = stack.remove(0);
+			boolean follows = function.apply(current);
+			if (follows) {
+				for (Concept c : parents(current)) {
+					if (!stack.contains(c)) {
+						stack.add(c);
+					}
+				}
+			}
+		}
+	}
+
+	default void topDown(Function<Concept, Boolean> function) {
+		List<Concept> stack = new ArrayList<Concept>();
+		stack.add(this.supremum());
+		while (!stack.isEmpty()) {
+			Concept current = stack.remove(0);
+			boolean follows = function.apply(current);
+			if (follows) {
+				for (Concept c : children(current)) {
+					if (!stack.contains(c)) {
+						stack.add(c);
+					}
+				}
+			}
+		}
+	}
+
 }

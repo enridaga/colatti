@@ -1,8 +1,11 @@
 package enridaga.colatti;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -42,16 +45,25 @@ public class ColattiTest {
 		Assert.assertTrue(colatti.perform("B", "b", "c", "d"));
 		log.debug("Supremum: {}", colatti.lattice().supremum());
 		log.debug("Infimum: {}", colatti.lattice().infimum());
-		Assert.assertTrue(colatti.lattice().concepts().size() == 4);
+		Assert.assertTrue(colatti.lattice().size() == 4);
 
 		Concept supremumTest = new ConceptInMemory(new String[] { "A", "B" }, new String[] { "b", "c" });
 		Concept infimumTest = new ConceptInMemory(new String[] {}, new String[] { "a", "b", "c", "d" });
 
 		Assert.assertTrue(colatti.lattice().supremum().equals(supremumTest));
 		Assert.assertTrue(colatti.lattice().infimum().equals(infimumTest));
-		for (Concept c : colatti.lattice().concepts()) {
+
+		List<Concept> layer = new ArrayList<Concept>();
+		layer.add(lattice.infimum());
+		while (!layer.isEmpty()) {
+			Concept current = layer.remove(0);
 			log.debug(" > {} :: {} / {}",
-					new Object[] { c, colatti.lattice().parents(c), colatti.lattice().children(c) });
+					new Object[] { current, colatti.lattice().parents(current), colatti.lattice().children(current) });
+			for (Concept c : colatti.lattice().parents(current)) {
+				if (!layer.contains(c)) {
+					layer.add(c);
+				}
+			}
 		}
 	}
 
@@ -62,7 +74,7 @@ public class ColattiTest {
 		Assert.assertTrue(colatti.perform("A", "a", "b", "c"));
 		Assert.assertTrue(colatti.perform("B", "b", "c", "d"));
 		Assert.assertTrue(colatti.perform("D", "e", "f"));
-		Assert.assertTrue(colatti.lattice().concepts().size() == 6);
+		Assert.assertTrue(colatti.lattice().size() == 6);
 
 		if (log.isDebugEnabled()) {
 			log.debug("Supremum: {}", colatti.lattice().supremum());
@@ -73,10 +85,16 @@ public class ColattiTest {
 		Assert.assertTrue(colatti.lattice().supremum().equals(supremumTest));
 		Assert.assertTrue(colatti.lattice().infimum().equals(infimumTest));
 		if (log.isDebugEnabled())
-			for (Concept c : colatti.lattice().concepts()) {
-				log.debug(" > {}", c);
-			}
+			colatti.lattice().bottomUp(debugConcepts);
 	}
+	
+	private static final Function<Concept,Boolean> debugConcepts = new Function<Concept, Boolean>() {
+		@Override
+		public Boolean apply(Concept c) {
+			log.debug("> {}", c);
+			return true;
+		};
+	};
 
 	@Test
 	public void testAddExistingObjectDoesNotChangeLattice() throws Exception {
@@ -85,8 +103,8 @@ public class ColattiTest {
 		Assert.assertTrue(colatti.perform("A", "a", "b", "c"));
 		Assert.assertTrue(colatti.perform("B", "b", "c", "d"));
 		Assert.assertTrue(colatti.perform("D", "e", "f"));
-		log.info("{}",colatti.lattice().concepts());
-		Assert.assertTrue(colatti.lattice().concepts().size() == 6);
+		// log.info("{}",colatti.lattice().concepts());
+		Assert.assertTrue(colatti.lattice().size() == 6);
 
 		if (log.isDebugEnabled()) {
 			log.debug("Supremum: {}", colatti.lattice().supremum());
@@ -97,16 +115,12 @@ public class ColattiTest {
 		Assert.assertTrue(colatti.lattice().supremum().equals(supremumTest));
 		Assert.assertTrue(colatti.lattice().infimum().equals(infimumTest));
 		if (log.isDebugEnabled())
-			for (Concept c : colatti.lattice().concepts()) {
-				log.debug(" << {}", c);
-			}
+			colatti.lattice().bottomUp(debugConcepts);
 
 		boolean affects = colatti.perform("A", "a", "b", "c");
 
 		if (log.isDebugEnabled())
-			for (Concept c : colatti.lattice().concepts()) {
-				log.debug(" >> {}", c);
-			}
+			colatti.lattice().bottomUp(debugConcepts);
 
 		Assert.assertFalse(affects);
 	}
@@ -138,8 +152,7 @@ public class ColattiTest {
 		Assert.assertTrue(colatti2.perform("D", "e"));
 		Assert.assertTrue(colatti2.perform("A", "b"));
 		Assert.assertTrue(colatti2.perform("A", "c"));
-		Assert.assertTrue(colatti2.lattice().concepts().size() == colatti.lattice().concepts().size());
-		Assert.assertTrue(colatti.lattice().concepts().equals(colatti2.lattice().concepts()));
+		Assert.assertTrue(colatti2.lattice().size() == colatti.lattice().size());
 	}
 
 	@Test
@@ -163,6 +176,6 @@ public class ColattiTest {
 			colatti.perform(object, attrs);
 		}
 		log.debug("Added 1000 objects");
-		log.debug("Concepts: {}", colatti.lattice().concepts().size());
+		log.debug("Concepts: {}", colatti.lattice().size());
 	}
 }

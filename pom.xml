@@ -7,13 +7,13 @@
 	<version>1.0-SNAPSHOT</version>
 	<name>colatti</name>
 	<url>https://github.com/enridaga/colatti</url>
-	
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.build.source>1.8</project.build.source>
 		<project.build.target>1.8</project.build.target>
 	</properties>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -49,4 +49,16 @@
 			<version>3.4</version>
 		</dependency>
 	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>${project.build.source}</source>
+					<target>${project.build.source}</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>
