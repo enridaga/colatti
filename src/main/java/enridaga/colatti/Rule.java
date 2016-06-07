@@ -1,6 +1,6 @@
 package enridaga.colatti;
 
-interface Rule {
+public interface Rule {
 	Object[] body();
 
 	Object[] head();
