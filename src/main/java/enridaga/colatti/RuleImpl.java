@@ -1,6 +1,6 @@
 package enridaga.colatti;
 
-class RuleImpl implements Rule {
+public class RuleImpl implements Rule {
 	private Object[] body;
 	private Object[] head;
 	private double confidence;
