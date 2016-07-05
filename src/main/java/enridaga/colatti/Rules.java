@@ -3,9 +3,13 @@ package enridaga.colatti;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
@@ -26,7 +30,8 @@ public class Rules {
 		// Pick the portion of inHead in the lattice
 		// A FIFO list
 		List<Concept> C = new ArrayList<Concept>();
-		Set<Rule> R = new HashSet<Rule>();
+		//Set<Rule> R = new HashSet<Rule>();
+		Map<Set<Object>,Rule> rulesByHead = new HashMap<Set<Object>,Rule>();
 		C.add(lattice.infimum());
 		while (!C.isEmpty()) {
 			Concept c = C.remove(0);
@@ -57,16 +62,22 @@ public class Rules {
 				// Confidence is the support divided by the number of items only
 				// satisfying b.
 				double confidence = 1;
+				Set<Object> objectsSatisfyingB = new HashSet<Object>();
 				for (Concept o : parents) {
 					// IF Intent(p) = b. There exists a set of objects only
 					// satisfying b (parent’s intent will be shorter then
 					// Intent(c) )
+					// We look for concepts matching all the body of the rule but not the head, and we collect the objects.
 					if (o.attributes().containsAll(b) && ! CollectionUtils.containsAny(o.attributes(), H)) {
-						L.debug("Set confidence: {}/{}",  ((double) c.objects().size()) , ((double) o.objects().size()));
-						confidence = ((double) c.objects().size()) / ((double) o.objects().size());
-						break;
+						objectsSatisfyingB.addAll(o.objects());
 					}
 				}
+				if(objectsSatisfyingB.size() == 0){
+					confidence = 1;
+				}else{
+					confidence = ((double) c.objects().size()) / ((double) objectsSatisfyingB.size());	
+				}
+				L.debug(" ----- itemsOf(H U B):{} itemsOf(B):{} ----- ", c.objects(), objectsSatisfyingB); 
 				r.confidence(confidence);
 				// We can add relative confidence.
 				// Relative confidence is defined as the
@@ -75,11 +86,37 @@ public class Rules {
 				r.relativeConfidence(((double) CollectionUtils.retainAll(b, Arrays.asList(inBody)).size())
 						/ ((double) b.size()));
 				L.debug("Rule: {}", r);
-				R.add(r);
+				Set<Object> headSet = Stream.of(r.head()).collect(Collectors.toSet());
+				
+				// Is this rule better then the one already selected?
+				boolean use = true;
+				if(rulesByHead.containsKey(headSet)){
+					Rule old = rulesByHead.get(headSet);
+					if(r.relativeConfidence() < old.relativeConfidence()){
+						use = false;
+					}else if (r.relativeConfidence() == old.relativeConfidence()){
+						// Check confidence
+						if(r.confidence() < old.confidence()){
+							use = false;
+						}else if (r.confidence() == old.confidence()){
+							// Check support
+							if(r.support() < old.support()){
+								use = false;
+							}
+						}	
+					}
+				}
+				if(use){
+					L.debug("Use: {}", r);
+					rulesByHead.put(headSet, r);
+				}else{
+					L.debug("Skip: {}", r);
+				}
 			} else {
 				L.debug("Ignore: {}", c);
 			}
 		}
-		return R.toArray(new Rule[R.size()]);
+		return rulesByHead.values().toArray(new Rule[rulesByHead.values().size()]);
+		//return R.toArray(new Rule[R.size()]);
 	}
 }
