@@ -8,10 +8,10 @@
 	</Appenders>
 	<Loggers>
 		<Logger name="org.apache.log4j.xml" level="info" />
-		<Logger name="enridaga.colatti" level="warn" />
-		<Logger name="enridaga.colatti.ColattiTest" level="debug" />
+		<Logger name="enridaga.colatti" level="trace" />
+		<Logger name="enridaga.colatti.ColattiTest" level="trace" />
 		
-		<Root level="info">
+		<Root level="debug">
 			<AppenderRef ref="STDOUT" />
 		</Root>
 	</Loggers>

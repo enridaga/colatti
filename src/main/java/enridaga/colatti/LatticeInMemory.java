@@ -232,10 +232,21 @@ public class LatticeInMemory implements Lattice {
 		Set<Concept> ppp = _parents.get(that);
 		_parents.remove(that);
 		_parents.put(with, ppp);
+		// remove that from ppp children
+		for(Concept p: ppp){
+			if(_children.get(p) != null)
+				_children.get(p).remove(that);
+				_children.get(p).add(with);
+		}
 		Set<Concept> ccc = _children.get(that);
 		_children.remove(that);
 		_children.put(with, ccc);
-
+		// remove that from ccc parents
+		for(Concept p: ccc){
+			if(_parents.get(p) != null)
+				_parents.get(p).remove(that);
+				_parents.get(p).add(with);
+		}
 		if (attributeSizeIndex.get(that.attributes().size()) != null)
 			attributeSizeIndex.get(that.attributes().size()).remove(that);
 

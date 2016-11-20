@@ -178,4 +178,17 @@ public class ColattiTest {
 		log.debug("Added 1000 objects");
 		log.debug("Concepts: {}", colatti.lattice().size());
 	}
+	
+	@Test
+	public void testMore() throws ColattiException{
+		Lattice lattice = new LatticeInMemory();
+		InsertObject io = new InsertObject(lattice);
+		// A,a,b,c
+		io.perform("A", "a", "b", "c");
+		// B,b,c,d
+		io.perform("B", "b", "c", "d");
+		// C,e,f,g,h,i
+		io.perform("C", "e", "f", "g", "h", "i");
+		
+	}
 }

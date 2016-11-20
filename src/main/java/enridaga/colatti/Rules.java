@@ -25,19 +25,17 @@ public class Rules {
 		this.lattice = lattice;
 	}
 
-	public Rule[] rules(Object[] inHead, Object[] inBody) throws ColattiException{
-		L.debug("Seeking rules inHead: {} inBody: {}", inHead, inBody);
-		// Pick the portion of inHead in the lattice
-		// A FIFO list
+	public Rule[] rules(Object[] inHead, Object[] inBody) throws ColattiException {
+		L.debug("[start seeking rules] inHead={} inBody={}", inHead, inBody);
+		// Pick the portion of inHead in the lattice (A FIFO list)
 		List<Concept> C = new ArrayList<Concept>();
-		//Set<Rule> R = new HashSet<Rule>();
 		Map<Set<Object>,Rule> rulesByHead = new HashMap<Set<Object>,Rule>();
 		C.add(lattice.infimum());
 		while (!C.isEmpty()) {
 			Concept c = C.remove(0);
 			Collection<Object> H = CollectionUtils.retainAll(c.attributes(), Arrays.asList(inHead));
 			if (!H.isEmpty() && !CollectionUtils.retainAll(c.attributes(), Arrays.asList(inBody)).isEmpty()) {
-				L.debug("Traverse: {}", c);
+				L.debug(" -- concept: {} -- ", c);
 				// Add all parents of c to C
 				Set<Concept> parents = lattice.parents(c);
 				for(Concept p: parents){
@@ -52,7 +50,7 @@ public class Rules {
 				// Support is the size of the extent of the concept divided by
 				// the nb of all objects
 				double support = ((double) c.objects().size()) / ((double) lattice.supremum().objects().size());
-				L.trace("Support: {}/{} {}",
+				L.trace(" -- support={}/{} {} -- ",
 						new Object[] { c.objects().size(), lattice.supremum().objects().size(), support });
 
 				r.support(support);
@@ -77,7 +75,7 @@ public class Rules {
 				}else{
 					confidence = ((double) c.objects().size()) / ((double) objectsSatisfyingB.size());	
 				}
-				L.debug(" ----- itemsOf(H U B):{} itemsOf(B):{} ----- ", c.objects(), objectsSatisfyingB); 
+				L.debug(" -- itemsOf(head U body)={} itemsOf(body)={} -- ", c.objects(), objectsSatisfyingB); 
 				r.confidence(confidence);
 				// We can add relative confidence.
 				// Relative confidence is defined as the
@@ -85,7 +83,7 @@ public class Rules {
 				// inBody (how much the rule matches the input body)
 				r.relativeConfidence(((double) CollectionUtils.retainAll(b, Arrays.asList(inBody)).size())
 						/ ((double) b.size()));
-				L.debug("Rule: {}", r);
+				L.debug(" -- rule={} -- ", r);
 				Set<Object> headSet = Stream.of(r.head()).collect(Collectors.toSet());
 				
 				// Is this rule better then the one already selected?
@@ -107,16 +105,16 @@ public class Rules {
 					}
 				}
 				if(use){
-					L.debug("Use: {}", r);
+					L.debug(" -- use={} -- ", r);
 					rulesByHead.put(headSet, r);
 				}else{
-					L.debug("Skip: {}", r);
+					L.debug(" -- skip={} -- ", r);
 				}
 			} else {
-				L.debug("Ignore: {}", c);
+				L.debug(" -- ignore={} -- ", c);
 			}
 		}
+		L.debug("[end seeking rules] number={}", rulesByHead.values().size());
 		return rulesByHead.values().toArray(new Rule[rulesByHead.values().size()]);
-		//return R.toArray(new Rule[R.size()]);
 	}
 }
