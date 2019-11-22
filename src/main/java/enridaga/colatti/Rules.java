@@ -35,7 +35,7 @@ public class Rules {
 			Concept c = C.remove(0);
 			Collection<Object> H = CollectionUtils.retainAll(c.attributes(), Arrays.asList(inHead));
 			if (!H.isEmpty() && !CollectionUtils.retainAll(c.attributes(), Arrays.asList(inBody)).isEmpty()) {
-				L.debug(" -- concept: {} -- ", c);
+				L.trace(" -- concept: {} -- ", c);
 				// Add all parents of c to C
 				Set<Concept> parents = lattice.parents(c);
 				for(Concept p: parents){
@@ -111,7 +111,7 @@ public class Rules {
 					L.debug(" -- skip={} -- ", r);
 				}
 			} else {
-				L.debug(" -- ignore={} -- ", c);
+				L.trace(" -- ignore={} -- ", c);
 			}
 		}
 		L.debug("[end seeking rules] number={}", rulesByHead.values().size());

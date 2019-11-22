@@ -38,6 +38,10 @@ public class InsertObject {
 	 * @throws ColattiException
 	 */
 	public boolean perform(Object object, Object... attributes) throws ColattiException {
+		return perform2(object, attributes);
+	}
+	
+	public boolean perform2(Object object, Object[] attributes) throws ColattiException {
 		L.trace("Called add({},{})", object, attributes);
 
 		/**

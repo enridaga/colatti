@@ -15,6 +15,9 @@ import enridaga.colatti.Lattice;
 public class GraphmlSerializer implements LatticeSerializer{
 	private final static Logger log = LoggerFactory.getLogger(GraphmlSerializer.class);
 
+	public String id = "Lattice";
+	public boolean showLabels = true;
+	public boolean labelsAsCount = false;
 	public final String serialize(Lattice lattice) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" + "<graphml "
@@ -37,7 +40,7 @@ public class GraphmlSerializer implements LatticeSerializer{
 				"  <key attr.name=\"description\" attr.type=\"string\" for=\"edge\" id=\"d8\"/>\n" + 
 				"  <key for=\"edge\" id=\"d9\" yfiles.type=\"edgegraphics\"/>\n" + 
 				"   \n");
-		sb.append("<graph edgedefault=\"directed\" id=\"Lattice\"> \n");
+		sb.append("<graph edgedefault=\"directed\" id=\"").append(id).append("\"> \n");
 		List<Concept> l = new ArrayList<Concept>();
 		Set<Concept> done = new HashSet<Concept>();
 		try {
@@ -46,15 +49,25 @@ public class GraphmlSerializer implements LatticeSerializer{
 				Concept c = l.remove(0);
 				log.debug("{}", c);
 				sb.append("<node id=\"n").append(c.hashCode()).append("\" >");
+				sb.append("<data key=\"d4\" xml:space=\"preserve\"><![CDATA[");
+				sb.append("]]></data>");
 				sb.append("<data key=\"d5\">");
 				sb.append(""
 						+ " <y:ShapeNode>\n" + 
 						"          <y:Geometry height=\"30.0\" width=\"30.0\" x=\"-15.0\" y=\"-15.0\"/>\n" + 
 						"          <y:Fill color=\"#FFFFFF\" transparent=\"false\"/>\n" + 
 						"          <y:BorderStyle color=\"#FFFFFF\" raised=\"false\" type=\"line\" width=\"0.0\"/>\n" + 
-						"          <y:NodeLabel alignment=\"center\" autoSizePolicy=\"content\" fontFamily=\"Dialog\" fontSize=\"12\" fontStyle=\"plain\" hasBackgroundColor=\"false\" hasLineColor=\"false\" height=\"18.1328125\" horizontalTextPosition=\"center\" iconTextGap=\"4\" modelName=\"custom\" textColor=\"#000000\" verticalTextPosition=\"bottom\" visible=\"true\" width=\"26.4765625\" x=\"1.76171875\" y=\"5.93359375\">"
+						"          <y:NodeLabel alignment=\"center\" autoSizePolicy=\"content\" fontFamily=\"Dialog\" fontSize=\"12\" fontStyle=\"plain\" hasBackgroundColor=\"false\" hasLineColor=\"false\" height=\"18.1328125\" horizontalTextPosition=\"center\" iconTextGap=\"4\" modelName=\"custom\" textColor=\"#000000\" verticalTextPosition=\"bottom\" visible=\"").append(showLabels).append("\" width=\"26.4765625\" x=\"1.76171875\" y=\"5.93359375\">"
 						);
-				sb.append(c);
+				if(labelsAsCount) {
+					log.info("Labels as count");
+					sb.append(c.objects().size());
+					sb.append(":");
+					sb.append(c.attributes().size());
+				} else {
+					log.info("Labels as array");
+					sb.append(c);
+				}
 				sb.append("<y:LabelModel>\n" + 
 						"              <y:SmartNodeLabelModel distance=\"4.0\"/>\n" + 
 						"            </y:LabelModel>\n" + 
