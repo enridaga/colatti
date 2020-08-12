@@ -39,6 +39,8 @@ public class GraphmlSerializer implements LatticeSerializer{
 				"  <key attr.name=\"url\" attr.type=\"string\" for=\"edge\" id=\"d7\"/>\n" + 
 				"  <key attr.name=\"description\" attr.type=\"string\" for=\"edge\" id=\"d8\"/>\n" + 
 				"  <key for=\"edge\" id=\"d9\" yfiles.type=\"edgegraphics\"/>\n" + 
+				"  <key attr.name=\"objects\" attr.type=\"string\" for=\"node\" id=\"d10\"/>\n" +
+				"  <key attr.name=\"attributes\" attr.type=\"string\" for=\"node\" id=\"d11\"/>\n" +
 				"   \n");
 		sb.append("<graph edgedefault=\"directed\" id=\"").append(id).append("\"> \n");
 		List<Concept> l = new ArrayList<Concept>();
@@ -51,6 +53,31 @@ public class GraphmlSerializer implements LatticeSerializer{
 				sb.append("<node id=\"n").append(c.hashCode()).append("\" >");
 				sb.append("<data key=\"d4\" xml:space=\"preserve\"><![CDATA[");
 				sb.append("]]></data>");
+				// Objects
+				sb.append("<data key=\"d10\" xml:space=\"preserve\"><![CDATA[");
+				boolean ofirst = true;
+				for(Object ooo:c.objects()) {
+					if(ofirst) {
+						ofirst = false;
+					} else {
+						sb.append(",");
+					}
+					sb.append(ooo.toString());
+				}
+				sb.append("]]></data>");
+				// Attributes
+				sb.append("<data key=\"d11\" xml:space=\"preserve\"><![CDATA[");
+				boolean afirst = true;
+				for(Object ooo:c.attributes()) {
+					if(afirst) {
+						afirst = false;
+					} else {
+						sb.append(",");
+					}
+					sb.append(ooo.toString());
+				}
+				sb.append("]]></data>");
+				
 				sb.append("<data key=\"d5\">");
 				sb.append(""
 						+ " <y:ShapeNode>\n" + 

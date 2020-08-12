@@ -29,10 +29,10 @@ public class JsonSerializer implements LatticeSerializer {
 			while (!l.isEmpty()) {
 				Concept c = l.iterator().next();
 				l.remove(c);
-				log.info("{}", c);
 				if (done.contains(c)) {
 					continue;
 				}
+				log.info("adding {}", c);
 				cc.add(toJSON(c, lattice));
 				done.add(c);
 				for (Concept con : lattice.parents(c)) {

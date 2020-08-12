@@ -12,7 +12,7 @@
 	</Appenders>
 	<Loggers>
 		<Logger name="org.apache.log4j.xml" level="info" />
-		<Logger name="enridaga.colatti" level="warn" />
+		<Logger name="enridaga.colatti" level="debug" />
 		<Logger name="enridaga.colatti.serializer" level="info" />
 		<Logger name="enridaga.colatti.ColattiTest" level="info" />
 
